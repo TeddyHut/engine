@@ -1,4 +1,4 @@
-#include "../../include/base/eg_dataReference.h"
+#include "../../include/eg/eg_dataReference.h"
 
 eg::DataReference const eg::DataReference::PRESET_DEFAULT;
 size_t const eg::DataReference::DATATYPE_UNDEFINED = 0xFFFFFFFF;

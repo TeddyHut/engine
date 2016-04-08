@@ -2,10 +2,30 @@
 
 #include <cstdint>
 #include <string>
+
+#include "thirdparty/murmur3_32.h"
 #include "eg_param.h"
 #include "eg_glbRtrn.h"
 
 namespace eg {
+	namespace Desc {
+		struct Key {
+#include "macro/rm_w4307_0.h"
+			enum e {
+				egType = murmur3_32_value("egType", 6, 0),
+			};
+#include "macro/rm_w4307_1.h"
+		};
+		struct Value {
+#include "macro/rm_w4307_0.h"
+			enum e {
+				Object = murmur3_32_value("Object", 6, 0),
+				FullObject = murmur3_32_value("FullObject", 10, 0),
+				DataManipulator = murmur3_32_value("DataManipulator", 15, 0),
+			};
+#include "macro/rm_w4307_1.h"
+		};
+	}
 	enum class LoadData_Param_e : size_t {
 		Data_New = 0,					//Default = 0; Create a new set of data for the alloc
 		Condition_IgnoreAlteration		//Default = 0; When searching previous reference will ignore the alteration

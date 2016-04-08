@@ -1,4 +1,4 @@
-#include "../../include/base/eg_definition.h"
+#include "../../include/eg/eg_definition.h"
 
 size_t const eg::LoadData_Param_z = 2;
 eg::Param<eg::LoadData_Param_e> const eg::LoadData_Param_d(eg::LoadData_Param_z, true,

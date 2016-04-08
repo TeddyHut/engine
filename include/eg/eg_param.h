@@ -172,7 +172,7 @@ template<typename param_t> eg::Param<param_t>::Param(size_t const amount, bool c
 	va_start(ellipse, nbit);
 
 	for (size_t i = 0; i < amountc; i++) {
-		param_t const tparam = static_cast<param_t>(va_arg(ellipse, unsigned int));
+		param_t const tparam = va_arg(ellipse, param_t);
 		bool const tbit = (va_arg(ellipse, int)) != 0;
 		set_param(tparam, tbit);
 	}
