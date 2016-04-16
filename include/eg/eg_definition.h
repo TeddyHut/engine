@@ -12,16 +12,16 @@ namespace eg {
 		struct Key {
 #include "macro/rm_w4307_0.h"
 			enum e {
-				egType = murmur3_32_value("egType", 6, 0),
+				egType = murmur3_32_value("egType", 6, 0),						//Specifies the egType
 			};
 #include "macro/rm_w4307_1.h"
 		};
 		struct Value {
 #include "macro/rm_w4307_0.h"
 			enum e {
-				Object = murmur3_32_value("Object", 6, 0),
-				FullObject = murmur3_32_value("FullObject", 10, 0),
-				DataManipulator = murmur3_32_value("DataManipulator", 15, 0),
+				Object = murmur3_32_value("Object", 6, 0),						//K = egType; Entity is an object (AKA inherited from eg::Object)
+				FullObject = murmur3_32_value("FullObject", 10, 0),				//K = egType; Entity is a fullObject (AKA inherited from eg::FullObject)
+				DataManipulator = murmur3_32_value("DataManipulator", 15, 0),	//K = egType; Entity is a dataManipulator (AKA inherited from eg::DataManipulator)
 			};
 #include "macro/rm_w4307_1.h"
 		};
@@ -50,8 +50,8 @@ namespace eg {
 	}; extern size_t const Scope_Param_z; extern eg::Param<Scope_Param_e> const Scope_Param_d; extern eg::Param<Scope_Param_e> const Scope_Param_d_Scope_SetDestination1;
 
 	enum class LoadData_Result_e : size_t {
-		Error = 2,
-		DefaultFunction
+		Error = 2,				//Err... Why does error = 2? Don't think that that is needed.
+		DefaultFunction			//No subclass dataManipulator_loadData has been specified
 	};
 	extern eg::GlbRtrn::Result const LoadData_Result_Error_r;
 	extern eg::GlbRtrn::Result const LoadData_Result_DefaultFunction_r;

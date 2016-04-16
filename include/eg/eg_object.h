@@ -15,7 +15,7 @@ namespace eg {
 	public:
 		enum class Object_Param_e : size_t {
 			State_RunRunoverInit = 0,		//Default = 1; States if the init function will be run
-			State_ControllerBound,			//Default = 0; States if a controller is bound to the Object
+			State_FullObjectBound,			//Default = 0; States if a controller is bound to the Object
 			Info_DynamicallyAllocated		//Default = 0; States if object was dynamically allocated
 		}; static Param<Object_Param_e> const Object_Param_d;
 
@@ -28,7 +28,7 @@ namespace eg {
 		virtual FunctionType get_functionType() const;						//Will return the functionType
 		virtual FullObject_abs_p *get_boundObject() const;					//Will return the boundcontroller
 
-		Param<Object_Param_e> Object_param;
+		Param<Object_Param_e> object_param;
 
 		Object();
 		virtual ~Object();
@@ -54,7 +54,7 @@ namespace eg {
 		virtual void object_unbindObject(FullObject_abs_p *nobject = nullptr);
 
 		Descriptor<> desc;
-		FullObject_abs_p *boundObject;
+		FullObject_abs_p *boundFullObject;
 		std::function<void(Object *const nobject)> object_unbindFunction;
 	};
 
