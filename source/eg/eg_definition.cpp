@@ -8,7 +8,7 @@ eg::Param<eg::LoadData_Param_e> const eg::LoadData_Param_d(eg::LoadData_Param_z,
 size_t const eg::FreeData_Param_z = 6;
 eg::Param<eg::FreeData_Param_e> const eg::FreeData_Param_d(eg::FreeData_Param_z, true,
 	eg::FreeData_Param_e::Function_All, false,
-	eg::FreeData_Param_e::Condition_TypeOnly, false,
+	eg::FreeData_Param_e::Condition_DescriptionOnly, false,
 	eg::FreeData_Param_e::Condition_FromEnd, false,
 	eg::FreeData_Param_e::Condition_IgnoreAlteration, false,
 	eg::FreeData_Param_e::Condition_IgnoreReferenceCount, false,

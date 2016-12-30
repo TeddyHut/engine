@@ -163,6 +163,7 @@ template<typename param_t> eg::Param<param_t>::Param(size_t const amount, bool c
 }
 
 template<typename param_t> eg::Param<param_t>::Param(size_t const amount, bool const nenum, param_t param, bool nbit, ...) : param_amount(0), param_free(0) {
+	//One day variadic templates, one day.
 	param_enum = nenum;
 	add_param(amount);
 	set_param(param, nbit);

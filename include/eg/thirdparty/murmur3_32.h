@@ -103,8 +103,7 @@ namespace ns_murmur3_32 {
 	}
 }
 
-constexpr uint32_t murmur3_32_value(const char* key, int len,
-	uint32_t seed)
+constexpr uint32_t murmur3_32_value(const char* key, int len, uint32_t seed)
 {
 	using namespace ns_murmur3_32;
 	return murmur3_32_final(

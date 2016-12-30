@@ -1,4 +1,4 @@
-#include "../../include/base/eg_dataManipulator.h"
+#include "../../include/eg/eg_dataManipulator.h"
 
 static std::string const _egNAME_FILE_seg_ = eg::util::truncateFilename(__FILE__);
 std::string const eg::DataManipulator::_egNAME_OBJECT_seg_ = "eg::DataManipulator";
@@ -31,51 +31,13 @@ bool eg::DataManipulator::dataManipulator_writeData(eg::GlbRtrn& rtrn, eg::DataR
 	return(dataManipulator_writeData_exe(rtrn, dataReference));
 }
 
-bool eg::DataManipulator::dataManipulator_loadData(eg::GlbRtrn& rtrn, eg::DataReferenceSet& dataReferenceSet, eg::Param<eg::LoadData_Param_e> const param) {
-	static std::string const _egNAME_FUNCTION_seg_ = "dataManipulator_loadData-set";
-	size_t loaded = 0;															//Initialise loaded -> Will count how many are allocated
-	for (auto&& element0 : dataReferenceSet) {									//Iterate through elements
-		dataManipulator_loadData_process(rtrn, element0, param);				//Attempt to load element
-		if (rtrn) {																//If failure
-			for (size_t i = 0; i < loaded;i++) {								//Iterate through loaded elements
-				dataManipulator_freeData_process(rtrn, dataReferenceSet[i]);	//Free loaded element
-				if (rtrn) break;												//If that doesn't work... Well.
-			}
-			break;																//Exit loop
-		}
-		loaded++;																//Add to count of loaded elements
-	}
-	eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Success_r);						//This function has been successfull (I guess)
-	return(rtrn);																//Return result
-}
-
-bool eg::DataManipulator::dataManipulator_freeData(eg::GlbRtrn& rtrn, eg::DataReferenceSet& dataReferenceSet, eg::Param<eg::FreeData_Param_e> const param) {
-	static std::string const _egNAME_FUNCTION_seg_ = "dataManipulator_freeData-set";
-	for (auto&& element0 : dataReferenceSet) {
-		dataManipulator_freeData_process(rtrn, element0, param);
-		if (rtrn) break;
-	}
-	eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Success_r);
-	return(rtrn);
-}
-
-bool eg::DataManipulator::dataManipulator_writeData(eg::GlbRtrn& rtrn, eg::DataReferenceSet const& dataReferenceSet, eg::Param<eg::WriteData_Param_e> const param) {
-	static std::string const _egNAME_FUNCTION_seg_ = "dataManipulator_writeData-set";
-	for (auto&& element0 : dataReferenceSet) {
-		dataManipulator_writeData_exe(rtrn, element0);
-		if (rtrn) break;
-	}
-	eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Success_r);
-	return(rtrn);
-}
-
 bool eg::DataManipulator::dataManipulator_deallocAllData(eg::GlbRtrn& rtrn) {
 	static std::string const _egNAME_FUNCTION_seg_ = "dataManipulator_deallocAllData";
 	for (size_t i = 0; i < dataManipulator_allocatedData.size();i++) {		//If this doesn't work out just make a copy of allocatedData and use that
 		size_t a = dataManipulator_allocatedData.size();
 		eg::Param<eg::FreeData_Param_e> param(eg::FreeData_Param_z, true,
 			FreeData_Param_e::Function_All, true,
-			FreeData_Param_e::Condition_TypeOnly, false,
+			FreeData_Param_e::Condition_DescriptionOnly, false,
 			FreeData_Param_e::Condition_FromEnd, false,
 			FreeData_Param_e::Condition_IgnoreAlteration, true,
 			FreeData_Param_e::Condition_IgnoreReferenceCount, true,
@@ -89,7 +51,7 @@ bool eg::DataManipulator::dataManipulator_deallocAllData(eg::GlbRtrn& rtrn) {
 
 bool eg::DataManipulator::dataManipulator_loadedData(eg::DataReference const& dataReference) const {
 	for (auto&& element : dataManipulator_allocatedData) {
-		if (element.dataReference.dataType == dataReference.dataType) {
+		if (element.dataReference.description == dataReference.description) {
 			return(true);
 		}
 	}
@@ -110,12 +72,8 @@ eg::DataManipulator::DataManipulator() :
 	dataManipulator_loadData_exe([](eg::GlbRtrn& rtrn, eg::DataReference& dataReference)->bool { static std::string const _egNAME_FUNCTION_seg_ = "dataManipulator_loadData_exe-defualt"; eg_GlbRtrn_egResult(rtrn, eg::LoadData_Result_DefaultFunction_r); return(rtrn); }),
 	dataManipulator_freeData_exe([](eg::GlbRtrn& rtrn, eg::DataReference& dataReference)->bool { static std::string const _egNAME_FUNCTION_seg_ = "dataManipulator_freeData_exe-defualt"; eg_GlbRtrn_egResult(rtrn, eg::FreeData_Result_DefaultFunction_r); return(rtrn); }),
 	dataManipulator_writeData_exe([](eg::GlbRtrn& rtrn, eg::DataReference const& dataReference)->bool { static std::string const _egNAME_FUNCTION_seg_ = "dataManipulator_writeData_exe-defualt"; eg_GlbRtrn_egResult(rtrn, eg::WriteData_Result_DefaultFunction_r); return(rtrn); }) {
-	
-#if defined(_CPPRTTI) || defined(__RTTI)
-	functionType.set_basetype<eg::DataManipulator>();
-#else
-	functionType.set_basetype(_egNAME_OBJECT_seg_);
-#endif
+
+	description[Key::egType] = Value::egType::DataManipulator;
 }
 
 eg::DataManipulator::~DataManipulator() {
@@ -150,25 +108,26 @@ bool eg::DataManipulator::dataManipulator_loadData_process(eg::GlbRtrn& rtrn, eg
 }
 
 bool eg::DataManipulator::dataManipulator_freeData_process(eg::GlbRtrn& rtrn, eg::DataReference& dataReference, eg::Param<eg::FreeData_Param_e> const param) {
+	//No idea whether I did it or not, but this function would probably be way smarter implemented with simple flags as to what comparisons are true, and then of all the requested comparisons match then the required value has been found.
 	std::function<bool(eg::GlbRtrn& rtrn, size_t const)> freeData = [&](eg::GlbRtrn& rtrn, size_t const itr)->bool {	//Will decrement the reference count of allocatedData[-itr-], and free if necessary
 		static std::string const _egNAME_FUNCTION_seg_ = "dataManipulator_freeData_process/freeData";
 		dataManipulator_allocatedData[itr].referenceCount--;										//Subtract -referenceCount-
 		if ((dataManipulator_allocatedData[itr].referenceCount == 0)||(param[FreeData_Param_e::Condition_IgnoreReferenceCount])) {	//If the -referenceCount- reaches 0 or ignore reference count
 			dataManipulator_freeData_exe(rtrn, dataManipulator_allocatedData[itr]);					//Free the data
 			if (!rtrn) {																			//If it was successful
-				dataManipulator_allocatedData.erase(dataManipulator_allocatedData.begin() + itr);	//Erase from allocatedData
 				if (param[FreeData_Param_e::Data_SetNull]) {										//if requests setnull
 					dataReference.dataSize = eg::DataReference::DATASIZE_UNDEFINED;					//Set external -dataReference- size to undefined
-					dataReference.dataType = eg::DataReference::DATATYPE_UNDEFINED;					//Set external -dataReference- type to undefined
+					dataReference.description = eg::Descriptor<>::Descriptor();						//Basically reset the desriptor
 					dataReference.dataPointer = nullptr;											//Set external -dataReference- pointer to nullptr
 				}
+				dataManipulator_allocatedData.erase(dataManipulator_allocatedData.begin() + itr);	//Erase from allocatedData
 			}
 		}
 		eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Success_r);
 		return(rtrn);																				//Return result
 	};
 	std::function<bool(eg::DataReference const&, eg::DataReference const&)> compare_typeonly_f = [param](eg::DataReference const& p0, eg::DataReference const& p1)->bool {	//Will compare -p0- and -p1- according to param
-		return((param[FreeData_Param_e::Condition_IgnoreAlteration] || (p0.alteration == p1.alteration)) && (((param[FreeData_Param_e::Condition_TypeOnly]) && (p0 == p1)) || ((p0.dataType == p1.dataType) && (p0.dataPointer == p1.dataPointer) && (p0.dataSize == p1.dataSize))));	//Longest conditional statement ever (maybe check if not working)
+		return((param[FreeData_Param_e::Condition_IgnoreAlteration] || (p0.alteration == p1.alteration)) && (((param[FreeData_Param_e::Condition_DescriptionOnly]) && (p0 == p1)) || ((p0.description == p1.description) && (p0.dataPointer == p1.dataPointer) && (p0.dataSize == p1.dataSize))));	//Longest conditional statement ever (maybe check if not working)
 	};
 	std::function<std::tuple<size_t const,size_t const>(DataReference const&,size_t const)> dataReference_fromend_f = [&](eg::DataReference const& p0, const size_t bgn_itr = 0)->std::tuple<size_t const,size_t const> {	//Will find the location of the next allocatedData matching -p0- after -bgn_itr-
 		if (param[FreeData_Param_e::Condition_FromEnd]) {				//If searching from end
@@ -207,16 +166,4 @@ bool eg::DataManipulator::dataManipulator_freeData_process(eg::GlbRtrn& rtrn, eg
 	}
 	eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Success_r);
 	return(rtrn);																			//Return result
-}
-
-void eg::DataManipulator::base_bindController(eg::BlankController* ncontroller) {
-	if (ncontroller == nullptr)
-		ncontroller = boundController;
-	ncontroller->add_egFunctionObject(this);
-}
-
-void eg::DataManipulator::base_unbindController(eg::BlankController* ncontroller) {
-	if (ncontroller == nullptr)
-		ncontroller = boundController;
-	ncontroller->remove_egFunctionObject(this);
 }

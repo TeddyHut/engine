@@ -15,7 +15,7 @@ namespace eg {
 	public:
 		enum class Object_Param_e : size_t {
 			State_RunRunoverInit = 0,		//Default = 1; States if the init function will be run
-			State_FullObjectBound,			//Default = 0; States if a controller is bound to the Object
+			State_FullObjectBound,			//Default = 0; States if the object is bound to a fullObject
 			Info_DynamicallyAllocated		//Default = 0; States if object was dynamically allocated
 		}; static Param<Object_Param_e> const Object_Param_d;
 
@@ -23,15 +23,17 @@ namespace eg {
 		virtual void runover_init(void *rundata);								//Will run before first runover, or according to -RUNOVER_INIT-
 		virtual void runover(void *rundata);									//Main runover for subclasses
 
-		virtual void set_boundFullObject(FullObject_abs_p *const nobject);			//Sets -boundController- and adds itself to the controller
+		virtual void set_boundFullObject(FullObject_abs_p *const nobject);			//Sets -boundFullObject- and adds itself to the fullObjects
 
-		virtual FunctionType get_functionType() const;						//Will return the functionType
-		virtual FullObject_abs_p *get_boundObject() const;					//Will return the boundcontroller
+		virtual FullObject_abs_p *get_boundFullObject() const;					//Will return the boundFullObject
 
-		Param<Object_Param_e> object_param;
+		Param<Object_Param_e> object_param = Object_Param_d;
+		
+		Descriptor<> description = eg::Descriptor<>::Descriptor({ {Key::egType, {Value::egType::Object} } });
 
 		Object();
 		virtual ~Object();
+
 	protected:
 		virtual bool loadData(DataReference &dataReference, Param<LoadData_Param_e> const param = LoadData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d) const;
 		virtual bool freeData(DataReference &dataReference, Param<FreeData_Param_e> const param = FreeData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d_Scope_SetDestination1) const;
@@ -47,14 +49,13 @@ namespace eg {
 		virtual bool freeData(GlbRtrn &rtrn, DataReferenceSet &dataReferenceSet, Param<FreeData_Param_e> const param = FreeData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d_Scope_SetDestination1) const;
 		virtual bool writeData(GlbRtrn &rtrn, DataReferenceSet const &dataReferenceSet, Param<WriteData_Param_e> const param = WriteData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d) const;
 
-		virtual Object *requestPointer(FunctionType type, Param<Scope_Param_e> param = Scope_Param_d) const;
-		virtual Object *requestPointer(GlbRtrn &rtrn, FunctionType type, Param<Scope_Param_e> param = Scope_Param_d) const;
+		virtual Object *requestPointer(Descriptor<> const desc, Param<Scope_Param_e> param = Scope_Param_d) const;
+		virtual Object *requestPointer(GlbRtrn &rtrn, Descriptor<> const desc, Param<Scope_Param_e> param = Scope_Param_d) const;
 
-		virtual void object_bindObject(FullObject_abs_p *nobject = nullptr);
-		virtual void object_unbindObject(FullObject_abs_p *nobject = nullptr);
+		//Will call unbind function of nullptr is given; Will add to -nobject- bound object list otherwise
+		virtual void object_bindFullObject(FullObject_abs_p *const nobject = nullptr);
 
-		Descriptor<> desc;
-		FullObject_abs_p *boundFullObject;
+		FullObject_abs_p *boundFullObject = nullptr;
 		std::function<void(Object *const nobject)> object_unbindFunction;
 	};
 

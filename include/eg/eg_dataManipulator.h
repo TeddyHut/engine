@@ -36,9 +36,6 @@ namespace eg {
 		virtual bool dataManipulator_loadData(GlbRtrn& rtrn, DataReference& dataReference, Param<LoadData_Param_e> const param = LoadData_Param_d);				//loadData according to dataReference
 		virtual bool dataManipulator_freeData(GlbRtrn& rtrn, DataReference& dataReference, Param<FreeData_Param_e> const param = FreeData_Param_d);				//freeData according to dataReference
 		virtual bool dataManipulator_writeData(GlbRtrn& rtrn, DataReference const& dataReference, Param<WriteData_Param_e> const param = WriteData_Param_d);	//writeData according to dataReference
-		virtual bool dataManipulator_loadData(GlbRtrn& rtrn, DataReferenceSet& dataReferenceSet, Param<LoadData_Param_e> const param = LoadData_Param_d);		//loadData according to dataReferenceSet
-		virtual bool dataManipulator_freeData(GlbRtrn& rtrn, DataReferenceSet& dataReferenceset, Param<FreeData_Param_e> const param = FreeData_Param_d);		//freeData according to dataReferenceSet
-		virtual bool dataManipulator_writeData(GlbRtrn& rtrn, DataReferenceSet const& dataReferenceSet, Param<WriteData_Param_e> const param = WriteData_Param_d);	//writeData according to dataReferenceSet
 
 		virtual bool dataManipulator_deallocAllData(GlbRtrn& rtrn);	//Deallocates all data within allocatedData
 
@@ -56,9 +53,6 @@ namespace eg {
 		
 		virtual bool dataManipulator_loadData_process(GlbRtrn& rtrn, DataReference& dataReference, Param<LoadData_Param_e> const param = LoadData_Param_d);	//Acts upon param
 		virtual bool dataManipulator_freeData_process(GlbRtrn& rtrn, DataReference& dataReference, Param<FreeData_Param_e> const param = FreeData_Param_d);	//Acts upon param
-		
-		virtual void object_bindObject(FullObject_abs_p* ncontroller = nullptr) override;
-		virtual void object_unbindObject(FullObject_abs_p* ncontroller = nullptr) override;
 
 		std::vector<DataReferenceWrapper> dataManipulator_allocatedData;	//Vector of all allocated dataReference
 	};

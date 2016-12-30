@@ -1,1 +1,1 @@
-#include "../../include/base/eg_declaration.h"
+#include "../../include/eg/eg_declaration.h"

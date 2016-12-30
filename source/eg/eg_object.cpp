@@ -7,44 +7,40 @@ eg::Param<eg::Object::Object_Param_e> const eg::Object::Object_Param_d(3, true,
 	eg::Object::Object_Param_e::State_FullObjectBound, false,
 	eg::Object::Object_Param_e::Info_DynamicallyAllocated, false);
 
-void eg::Object::object_runover(void* rundata) {
+void eg::Object::object_runover(void *rundata) {
 	if(object_param[Object_Param_e::State_RunRunoverInit]) {
 		runover_init(rundata);
 		object_param[Object_Param_e::State_RunRunoverInit] = false;
 	}
-	//Maybe do an 'else' runover
-	runover(rundata);
+	else
+		runover(rundata);
 }
 
-void eg::Object::runover_init(void* rundata) {
+void eg::Object::runover_init(void *rundata) {
 }
 
-void eg::Object::runover(void* rundata) {
+void eg::Object::runover(void *rundata) {
 }
 
-void eg::Object::set_boundFullObject(eg::FullObject_abs_p* const ncontroller) {
+void eg::Object::set_boundFullObject(eg::FullObject_abs_p* const nfullobject) {
 	if (object_param[Object_Param_e::State_FullObjectBound]) {
+		object_bindFullObject(nullptr);
 		object_param[Object_Param_e::State_FullObjectBound] = false;
-		this->object_unbindFullObject();
 		boundFullObject = nullptr;
 	}
-	if (ncontroller != nullptr) {
-		boundFullObject = ncontroller;
-		this->object_bindFullObject();
-		object_unbindFunction = boundFullObject->object_get_unbindFunction(this);
+	if (nfullobject != nullptr) {
+		boundFullObject = nfullobject;
+		object_bindFullObject(boundFullObject);
+		object_unbindFunction = boundFullObject->object_get_unbindFunction();
 		object_param[Object_Param_e::State_FullObjectBound] = true;
 	}
-}
-
-eg::FunctionType eg::Object::get_functionType() const {
-	return(functionType);
 }
 
 eg::FullObject_abs_p* eg::Object::get_boundFullObject() const {
 	return(boundFullObject);
 }
 
-eg::Object::Object() : object_param(Object_Param_d), boundFullObject(nullptr), desc{ { {Desc::Key::egType, {Desc::Value::Object, Desc::Value::FullObject}} } } {
+eg::Object::Object() {
 }
 
 eg::Object::~Object() {
@@ -167,22 +163,33 @@ bool eg::Object::writeData(eg::GlbRtrn& rtrn, eg::DataReferenceSet const& dataRe
 	return(rtrn);
 }
 
-eg::Object* eg::Object::requestPointer(eg::FunctionType type, eg::Param<eg::Scope_Param_e> param) const {
+eg::Object* eg::Object::requestPointer(eg::Descriptor<> const desc, eg::Param<eg::Scope_Param_e> param) const {
 	static std::string const _egNAME_FUNCTION_seg_ = "requestPointer";
 	eg::GlbRtrn rtrn;
-	eg::Object* object_rtrn = requestPointer(rtrn, type, param);
+	eg::Object* object_rtrn = requestPointer(rtrn, desc, param);
 	eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Success_r);
 	rtrn.check();
 	return(object_rtrn);
 }
 
-eg::Object* eg::Object::requestPointer(eg::GlbRtrn& rtrn, eg::FunctionType type, eg::Param<eg::Scope_Param_e> param) const {
+eg::Object* eg::Object::requestPointer(eg::GlbRtrn& rtrn, eg::Descriptor<> const desc, eg::Param<eg::Scope_Param_e> param) const {
 	static std::string const _egNAME_FUNCTION_seg_ = "requestPointer-glb";
 	if (object_param[Object_Param_e::State_FullObjectBound]) {
-		eg::Object* object_rtrn = boundFullObject->object_requestPointer(rtrn, this, type, param);
+		eg::Object* object_rtrn = boundFullObject->object_requestPointer(rtrn, this, desc, param);
 		eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Success_r);
 		return(object_rtrn);
 	}
 	eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Failure_r);
 	return(nullptr);
+}
+
+void eg::Object::object_bindFullObject(eg::FullObject_abs_p *const nobject) {
+	if (nobject == nullptr) {
+		if (object_param[Object_Param_e::State_FullObjectBound]) {
+			object_unbindFunction(this);
+		}
+	}
+	else {
+		nobject->add_egObject(this);
+	}
 }

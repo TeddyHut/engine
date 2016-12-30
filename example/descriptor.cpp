@@ -1,5 +1,8 @@
-#include "../include/eg/eg_engine.h"
+#include "../include/eg/eg_descriptor.h"
+#include "../include/eg/thirdparty/murmur3_32.h"
+
 #include "../include/eg/macro/rm_w4307_0.h"
+
 
 namespace Key {
 	enum e {
@@ -33,7 +36,7 @@ namespace Value {
 	}
 }
 
-int main(int argc, char** argv) {
+void example() {
 	//Create a descriptor called david
 	eg::Descriptor<> david;
 	//Create a new key called "Fruit" and add the value "Apple" to it
@@ -50,18 +53,15 @@ int main(int argc, char** argv) {
 	//We can check whether david contains the value Pear in the key fruit using the following syntax
 	if (david[Key::Fruit] & Value::Fruit::Pear) {
 		//David contains the value pear
-		std::cout << "Pear!" << std::endl;
 	}
 	eg::Descriptor<> desc({ { Key::Fruit,
-	{ Value::Fruit::Orange, Value::Fruit::Pear }
-		} });
+								{ Value::Fruit::Orange, Value::Fruit::Pear }
+							} });
 	//To check whether david contains the value Pear or the Value Orange in the Key Fruit, use the following syntax
-	if (david[Key::Fruit] & eg::Descriptor<>::Descriptor({ { Key::Fruit,{ Value::Fruit::Orange, Value::Fruit::Pear } } })[Key::Fruit]) {
+	if (david[Key::Fruit] & eg::Descriptor<>::Descriptor({ { Key::Fruit, {Value::Fruit::Orange, Value::Fruit::Pear} } } )[Key::Fruit]) {
 		//Sort of confusing looking?
 		//The smarter way would probably be to use the if statement || instead of something like that
-		std::cout << "Yes!" << std::endl;
 	}
-	system("pause");
 }
 
 #include "../include/eg/macro/rm_w4307_1.h"

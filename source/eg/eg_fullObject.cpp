@@ -1,75 +1,111 @@
-#include "../../include/base/eg_fullObject.h"
+#include "../../include/eg/eg_fullObject.h"
 
 static std::string const _egNAME_FILE_seg_ = eg::util::truncateFilename(__FILE__);
 std::string const eg::FullObject::_egNAME_OBJECT_seg_ = "eg::FullObject";
 
 eg::Param<eg::FullObject::FullObject_Param_e> const eg::FullObject::FullObject_Param_d;
 
-bool eg::FullObject::object_loadData(eg::GlbRtrn& rtrn, eg::Object const*const object, eg::DataReference& dataReference, eg::Param<eg::LoadData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const { //Maybe rewrite this for priority (eg compare_equal has higher importance than compare true)
+void eg::FullObject::runover_fullObject(void *rundata) {
+	//Runover self
+	object_runover(rundata);
+	//Runover attached dataManipulators
+	for (auto &&element : attachedObject) {
+		if ((element->description[Key::egType] & Value::egType::DataManipulator) && (!(element->description[Key::egType] & Value::egType::FullObject))) {
+			element->object_runover(rundata);
+		}
+	}
+	//Runover attached non-dataManipulator objects
+	for (auto &&element : attachedObject) {
+		if ((!(element->description[Key::egType] & Value::egType::DataManipulator)) && (!(element->description[Key::egType] & Value::egType::FullObject))) {
+			element->object_runover(rundata);
+		}
+	}
+	//Call runover_fullObject (this function) for attached fullObjects
+	for (auto &&element : attachedObject) {
+		if (element->description[Key::egType] & Value::egType::FullObject) {
+			FullObject *fullObject = dynamic_cast<FullObject *>(element);
+			fullObject->runover_fullObject(rundata);
+		}
+	}
+}
+
+bool eg::FullObject::object_loadData(eg::GlbRtrn &rtrn, eg::Object const *const object, eg::DataReference &dataReference, eg::Param<eg::LoadData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const { //Maybe rewrite this for priority (eg compare_equal has higher importance than compare true)
 	static std::string const _egNAME_FUNCTION_seg_ = "object_loadData-ref";
-	eg::DataManipulator* dataManipulator = find_matching_dataManipulator(rtrn, dataReference, scope_param);
+	auto result = find_matching_dataManipulator(rtrn, dataReference, scope_param);
 	if (!rtrn) {
-		dataManipulator->dataManipulator_loadData(rtrn, dataReference, param);
+		result->dataManipulator_loadData(rtrn, dataReference, param);
 	}
 	eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Success_r);
 	return(rtrn);
 }
 
-bool eg::FullObject::object_freeData(eg::GlbRtrn& rtrn, eg::Object const*const object, eg::DataReference& dataReference, eg::Param<eg::FreeData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const {
+bool eg::FullObject::object_freeData(eg::GlbRtrn &rtrn, eg::Object const *const object, eg::DataReference& dataReference, eg::Param<eg::FreeData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const {
 	static std::string const _egNAME_FUNCTION_seg_ = "object_freeData-ref";
-	eg::DataManipulator* dataManipulator = find_matching_dataManipulator(rtrn, dataReference, scope_param);
+	auto result = find_matching_dataManipulator(rtrn, dataReference, scope_param);
 	if (!rtrn) {
-		dataManipulator->dataManipulator_freeData(rtrn, dataReference, param);
+		result->dataManipulator_freeData(rtrn, dataReference, param);
 	}
 	eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Success_r);
 	return(rtrn);
 }
 
-bool eg::FullObject::object_writeData(eg::GlbRtrn& rtrn, eg::Object const*const object, eg::DataReference const& dataReference, eg::Param<eg::WriteData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const {
+bool eg::FullObject::object_writeData(eg::GlbRtrn &rtrn, eg::Object const *const object, eg::DataReference const &dataReference, eg::Param<eg::WriteData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const {
 	static std::string const _egNAME_FUNCTION_seg_ = "object_writeData-ref";
-	eg::DataManipulator* dataManipulator = find_matching_dataManipulator(rtrn, dataReference, scope_param);
+	auto result = find_matching_dataManipulator(rtrn, dataReference, scope_param);
 	if (!rtrn) {
-		dataManipulator->dataManipulator_writeData(rtrn, dataReference, param);
+		result->dataManipulator_writeData(rtrn, dataReference, param);
 	}
 	eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Success_r);
 	return(rtrn);
 }
 
-bool eg::FullObject::object_loadData(eg::GlbRtrn& rtrn, eg::Object const*const object, eg::DataReferenceSet& dataReferenceSet, eg::Param<eg::LoadData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const {
+bool eg::FullObject::object_loadData(eg::GlbRtrn &rtrn, eg::Object const *const object, eg::DataReferenceSet &dataReferenceSet, eg::Param<eg::LoadData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const {
 	static std::string const _egNAME_FUNCTION_seg_ = "object_loadData-set";
-	eg::DataManipulator* dataManipulator = find_matching_dataManipulator(rtrn, dataReferenceSet, scope_param);
-	if (!rtrn) {
-		dataManipulator->dataManipulator_loadData(rtrn, dataReferenceSet, param);
+	size_t loaded = 0;															//Initialise loaded -> Will count how many are allocated
+	for (auto&& element0 : dataReferenceSet) {									//Iterate through elements
+		object_loadData(rtrn, this, element0, param);							//Attempt to load element
+		if (rtrn) {																//If failure
+			eg_GlbRtrn_egResult(rtrn, Main_Result_Failure_r);					//Add failure to rtrn
+			for (size_t i = 0; i < loaded; i++) {								//Iterate through loaded elements
+				object_freeData(rtrn, object, dataReferenceSet[i]);				//Free loaded element
+				if (rtrn) break;												//If that doesn't work... Well.
+			}
+			break;																//Exit loop
+		}
+		loaded++;																//Add to count of loaded elements
 	}
-	eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Success_r);
-	return(rtrn);
+	eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Success_r);						//This function has been successfull (I guess)
+	return(rtrn);																//Return result
 }
 
-bool eg::FullObject::object_freeData(eg::GlbRtrn& rtrn, eg::Object const*const object, eg::DataReferenceSet& dataReferenceSet, eg::Param<eg::FreeData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const {
+bool eg::FullObject::object_freeData(eg::GlbRtrn &rtrn, eg::Object const *const object, eg::DataReferenceSet &dataReferenceSet, eg::Param<eg::FreeData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const {
 	static std::string const _egNAME_FUNCTION_seg_ = "object_freeData-set";
-	eg::DataManipulator* dataManipulator = find_matching_dataManipulator(rtrn, dataReferenceSet, scope_param);
-	if (!rtrn) {
-		dataManipulator->dataManipulator_freeData(rtrn, dataReferenceSet, param);
+	for (auto&& element0 : dataReferenceSet) {
+		object_freeData(rtrn, object, element0, param, scope_param);
+		if (rtrn) break;
 	}
 	eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Success_r);
 	return(rtrn);
 }
 
-bool eg::FullObject::object_writeData(eg::GlbRtrn& rtrn, eg::Object const*const object, eg::DataReferenceSet const& dataReferenceSet, eg::Param<eg::WriteData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const {
+bool eg::FullObject::object_writeData(eg::GlbRtrn &rtrn, eg::Object const *const object, eg::DataReferenceSet const &dataReferenceSet, eg::Param<eg::WriteData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const {
 	static std::string const _egNAME_FUNCTION_seg_ = "object_writeData-set";
-	eg::DataManipulator* dataManipulator = find_matching_dataManipulator(rtrn, dataReferenceSet, scope_param);
-	if (!rtrn) {
-		dataManipulator->dataManipulator_writeData(rtrn, dataReferenceSet, param);
+	for (auto&& element0 : dataReferenceSet) {
+		object_writeData(rtrn, object, element0, param, scope_param);
+		if (rtrn) break;
 	}
 	eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Success_r);
 	return(rtrn);
 }
 
-eg::Object* eg::FullObject::object_requestPointer(eg::GlbRtrn& rtrn, eg::Object const*const object0, eg::FunctionType const type0, eg::Param<eg::Scope_Param_e> param) const {
-	auto searchLocal = [&]()->eg::Object* {
+eg::Object* eg::FullObject::object_requestPointer(eg::GlbRtrn &rtrn, eg::Object const *const requester, eg::Descriptor<> const desc, eg::Param<eg::Scope_Param_e> param) const {
+	//Create lambda for localSearch function
+	auto searchLocal = [&]()->eg::Object * {
 		static std::string const _egNAME_FUNCTION_seg_ = "object_requestPointer/searchLocal";
-		for (auto&& element0 : attachedObject) {
-			if ((eg::FunctionType::compare_true(type0, element0->get_functionType())) && (eg::FunctionType::compare_objectmatch(type0, element0->get_functionType()))) {
+		//Iterate through attached objects
+		for (auto &&element0 : attachedObject) {
+			//Compare to determine whether the iterated object in question has all the necessary descriptions
+			if((element0->description & desc) == desc) {
 				eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Success_r);
 				return(element0);
 			}
@@ -77,21 +113,34 @@ eg::Object* eg::FullObject::object_requestPointer(eg::GlbRtrn& rtrn, eg::Object 
 		eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Failure_r);
 		return(nullptr);
 	};
+
+	//Create lambda for externalSearch function
 	auto searchExternal = [&]()->eg::Object* {
 		static std::string const _egNAME_FUNCTION_seg_ = "object_requestPointer/searchExternal";
+		//The object to be returned
 		eg::Object* object_rtrn;
-		for (auto&& element : externalFullObject) {
-			object_rtrn = element->object_requestPointer(rtrn, this, type0, param);
+		//Need to do this because there is a chance that if being called up the chain, then rtrn will be false
+		rtrn.validate();
+		//Check to determine whether a search can be conducted further up the chain
+		if (this->object_param[Object_Param_e::State_FullObjectBound]) {
+			object_rtrn = this->boundFullObject->object_requestPointer(rtrn, requester, desc, param);
+			//If it a result was found
 			if (!rtrn) {
 				eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Success_r);
 				return(object_rtrn);
 			}
-			rtrn.validate();
 		}
+		//If a result cannot be found, return a failure.
 		eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Failure_r);
 		return(nullptr);
 	};
+
 	static std::string const _egNAME_FUNCTION_seg_ = "object_requestPointer";
+	//Check to make sure that there is something in the description
+	if (!desc) {
+		eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Failure_r);
+		return(nullptr);
+	}
 	eg::Object* object_rtrn;
 	if (param[Scope_Param_e::Scope_LocalFirst] || param[Scope_Param_e::Scope_LocalOnly]) {
 		object_rtrn = searchLocal();
@@ -122,121 +171,67 @@ eg::Object* eg::FullObject::object_requestPointer(eg::GlbRtrn& rtrn, eg::Object 
 	return(nullptr);
 }
 
-void eg::FullObject::add_Object(eg::Object* const nobject) {
-#if defined(_CPPRTTI) || defined(__RTTI)
-	if (typeid(eg::FullObject).hash_code() == nobject->get_functionType().objecttype_hashcode) add_egFunctionObject(dynamic_cast<eg::FullObject* const>(nobject));
-	if (typeid(eg::Input).hash_code() == nobject->get_functionType().objecttype_hashcode) add_egFunctionObject(dynamic_cast<eg::Input* const>(nobject));
-	if (typeid(eg::Model).hash_code() == nobject->get_functionType().objecttype_hashcode) add_egFunctionObject(dynamic_cast<eg::Model* const>(nobject));
-	if (typeid(eg::View).hash_code() == nobject->get_functionType().objecttype_hashcode) add_egFunctionObject(dynamic_cast<eg::View* const>(nobject));
-	if (typeid(eg::DataManipulator).hash_code() == nobject->get_functionType().objecttype_hashcode) add_egFunctionObject(dynamic_cast<eg::DataManipulator* const>(nobject));
-#else
-	if (eg::type::get_string_hash(eg::FullObject::_egNAME_OBJECT_seg_) == nobject->get_functionType().objecttype_hashcode) add_egFunctionObject(static_cast<eg::FullObject* const>(nobject));
-	if (eg::type::get_string_hash(eg::Input::_egNAME_OBJECT_seg_) == nobject->get_functionType().objecttype_hashcode) add_egFunctionObject(static_cast<eg::Input* const>(nobject));
-	if (eg::type::get_string_hash(eg::Model::_egNAME_OBJECT_seg_) == nobject->get_functionType().objecttype_hashcode) add_egFunctionObject(static_cast<eg::Model* const>(nobject));
-	if (eg::type::get_string_hash(eg::View::_egNAME_OBJECT_seg_) == nobject->get_functionType().objecttype_hashcode) add_egFunctionObject(static_cast<eg::View* const>(nobject));
-	if (eg::type::get_string_hash(eg::DataManipulator::_egNAME_OBJECT_seg_) == nobject->get_functionType().objecttype_hashcode) add_egFunctionObject(static_cast<eg::DataManipulator* const>(nobject));
-#endif
+void eg::FullObject::add_egObject(eg::Object *const nobject) {
+	add_object(nobject);
 }
 
+void eg::FullObject::remove_egObject(eg::Object *const nobject) {
+	remove_object(nobject);
+}
 
+void eg::FullObject::dealloc_egObject() {
+	//Pretty dodgy, but whatevs for now
+	for (auto &&object : attachedObject) {
+		if (object->object_param[Object_Param_e::Info_DynamicallyAllocated]) {
+			delete object;
+			object = nullptr;
+		}
+	}
+}
 
-
-
-std::function<void(eg::Object* const nobject)> eg::FullObject::object_get_unbindFunction(eg::FullObject const*const nobject) {
+std::function<void(eg::Object* const nobject)> eg::FullObject::object_get_unbindFunction() {
 	return([this](Object* const nobject)->void {
-		this->remove_egFunctionObject(static_cast<eg::FullObject* const>(nobject));
+		this->remove_egObject(static_cast<eg::FullObject* const>(nobject));
 	});
+}
+
+eg::FullObject::FullObject() {
+	//For some reason it didn't like this being in the constructor initializer...
+	description[Key::egType] = Value::egType::FullObject;
+}
+
+eg::FullObject::~FullObject() {
+	for (auto &&element : attachedObject) {
+		if (element->object_param[Object_Param_e::Info_DynamicallyAllocated]) {
+			delete element;
+			//Meh.
+		}
+	}
+}
+
+void eg::FullObject::add_object(Object *const nobject) {
+	attachedObject.push_back(nobject);
+}
+
+void eg::FullObject::remove_object(Object *const nobject) {
+	util::remove_p0_from_p1(std::vector<eg::Object *>{nobject}, attachedObject);
 }
 
 eg::DataManipulator* eg::FullObject::find_matching_dataManipulator(eg::GlbRtrn& rtrn, eg::DataReference const& dataReference, eg::Param<eg::Scope_Param_e> const param) const {
 	static std::string const _egNAME_FUNCTION_seg_ = "find_matching_dataManipulator-ref";
-	eg::DataReferenceSet dataReferenceSet;
-	dataReferenceSet.add_DataReference(dataReference);
-	eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Success_r);
-	return(find_matching_dataManipulator(rtrn, dataReferenceSet, param));
-}
-
-eg::DataManipulator* eg::FullObject::find_matching_dataManipulator(eg::GlbRtrn& rtrn, eg::DataReferenceSet const& dataReferenceSet, eg::Param<eg::Scope_Param_e> const param) const {
-	auto searchLocal = [&]()->eg::DataManipulator* {
-		static std::string const _egNAME_FUNCTION_seg_ = "find_matching_dataManipulator-set/searchLocal";
-		eg::FunctionType dataFunction;
-		dataFunction.set_objecttype<eg::DataManipulator>();
-		for (auto&& element1 : dataReferenceSet) {
-			dataFunction.functionType.push_back(static_cast<eg::DataReference const&>(element1).dataType);
-		}
-		for (auto&& element0 : attachedDataManipulator) {
-			eg::FunctionType manipulatorFunction = element0->get_functionType();
-			if (eg::FunctionType::compare_true(dataFunction, manipulatorFunction)) {
-				eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Success_r);
-				return(element0);
-			}
-		}
-		eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Failure_r);
+	//Get the description of the data requested
+	if (!(dataReference.description)) {
+		eg_GlbRtrn_egResult(rtrn, Main_Result_Failure_r);
+		//Return the result
 		return(nullptr);
-	};
-	auto searchExternal = [&]()->eg::DataManipulator* {
-		static std::string const _egNAME_FUNCTION_seg_ = "find_matching_dataManipulator-set/searchExternal";
-		eg::DataManipulator* dataManipulator_rtrn;
-		eg::FunctionType dataFunction;
-#if defined(_CPPRTTI) || defined(__RTTI)
-		dataFunction.set_objecttype<eg::DataManipulator>();
-#else
-		dataFunction.set_objecttype(eg::DataManipulator::_egNAME_OBJECT_seg_);
-#endif
-		for (auto&& element1 : dataReferenceSet) {
-			dataFunction.functionType.push_back(static_cast<eg::DataReference const&>(element1).dataType);
-		}
-		for (auto&& element : externalFullObject) {
-			dataManipulator_rtrn = static_cast<eg::DataManipulator*>(element->object_requestPointer(rtrn, this, dataFunction, param));
-			if (!rtrn) {
-				eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Success_r);
-				return(dataManipulator_rtrn);
-			}
-			rtrn.validate();
-		}
-		eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Failure_r);
-		return(nullptr);
-	};
-	static std::string const _egNAME_FUNCTION_seg_ = "find_matching_dataManipulator-set";
-	eg::DataManipulator* dataManipulator_rtrn;
-	if (param[Scope_Param_e::Scope_LocalFirst] || param[Scope_Param_e::Scope_LocalOnly]) {
-		dataManipulator_rtrn = searchLocal();
-		if (!rtrn) {
-			eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Success_r);
-			return(dataManipulator_rtrn);
-		}
-		else if (param[Scope_Param_e::Scope_LocalOnly]) {
-			eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Failure_r);
-			return(nullptr);
-		}
-		rtrn.validate();
 	}
-	dataManipulator_rtrn = searchExternal();
-	if (!rtrn) {
-		eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Success_r);
-		return(dataManipulator_rtrn);
-	}
-	else if (!param[Scope_Param_e::Scope_LocalFirst]) {
-		rtrn.validate();
-		dataManipulator_rtrn = searchLocal();
-		if (!rtrn) {
-			eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Success_r);
-			return(dataManipulator_rtrn);
-		}
-	}
-	eg_GlbRtrn_egResult(rtrn, eg::Main_Result_Failure_r);
-	return(nullptr);
-}
-
-void eg::FullObject::object_bindFullObject(eg::BlankFullObject* nfullObject) {
-	if (nfullObject == nullptr) {
-		nfullObject = boundFullObject;
-	}
-	nfullObject->add_egFunctionObject(this);
-}
-
-void eg::FullObject::object_unbindFullObject(eg::BlankFullObject* nfullObject) {
-	if (nfullObject == nullptr)
-		nfullObject = boundFullObject;
-	nfullObject->remove_egFunctionObject(this);
+	auto dataManipulator_description = dataReference.description;
+	//Add the value DataManipulator to key eg::Type to make sure that only DataManipulators are searched
+	dataManipulator_description[Key::egType] = Value::egType::DataManipulator;
+	//Search for the respective dataManipulator
+	DataManipulator *result = dynamic_cast<DataManipulator *>(object_requestPointer(rtrn, this, dataManipulator_description, param));
+	//This function did what it was supposed to
+	eg_GlbRtrn_egResult(rtrn, Main_Result_Success_r);
+	//Return the result
+	return(result);
 }

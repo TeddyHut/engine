@@ -1,4 +1,4 @@
-#include "../../include/base/eg_glbRtrn.h"
+#include "../../include/eg/eg_glbRtrn.h"
 
 eg::GlbRtrn::Result::Result() : result_hash(0), result_fail(true), string_o("") {
 }

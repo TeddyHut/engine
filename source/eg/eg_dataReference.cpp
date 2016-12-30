@@ -1,13 +1,11 @@
 #include "../../include/eg/eg_dataReference.h"
 
 eg::DataReference const eg::DataReference::PRESET_DEFAULT;
-size_t const eg::DataReference::DATATYPE_UNDEFINED = 0xFFFFFFFF;
-size_t const eg::DataReference::DATASIZE_UNDEFINED = 0xFFFFFFFF;
 
-eg::DataReference::DataReference() : dataType(eg::DataReference::DATATYPE_UNDEFINED), dataSize(eg::DataReference::DATASIZE_UNDEFINED), dataPointer(nullptr), arrayType(false), alteration(0) {
+eg::DataReference::DataReference() : dataSize(eg::DataReference::DATASIZE_UNDEFINED), dataPointer(nullptr), arrayType(false), alteration(0) {
 }
 
-eg::DataReference::DataReference(size_t const ndataType,size_t const ndataSize, void* const ndataPointer, bool const narrayType) : dataType(ndataType), dataSize(ndataSize), dataPointer(ndataPointer), arrayType(narrayType), alteration(0) {
+eg::DataReference::DataReference(eg::Descriptor<> const description, size_t const ndataSize, void* const ndataPointer, bool const narrayType) : description(description), dataSize(ndataSize), dataPointer(ndataPointer), arrayType(narrayType), alteration(0) {
 }
 
 size_t const eg::DataReferenceSet::size() const {
@@ -69,5 +67,5 @@ eg::DataReference const& eg::DataReferenceSet::Container_get(size_t const iterat
 }
 
 bool operator== (eg::DataReference const& lhs,eg::DataReference const& rhs) {
-	return(lhs.dataType == rhs.dataType);
+	return(lhs.description == rhs.description);
 }
