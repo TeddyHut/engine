@@ -63,6 +63,9 @@ namespace eg {
 		//"descriptor0 is equal to descriptor1"
 		bool operator==(Descriptor<key_t, value_t> const &p0) const;
 		
+		//Strict weak ordering compare function
+		bool operator<(Descriptor<key_t, value_t> const &p0) const;
+		
 		//Called on 'descriptor0 & descriptor1'
 		//"create a descriptor that contains both the values and keys that were in both descriptor0 and descriptor1"
 		Descriptor<key_t, value_t> operator&(Descriptor<key_t, value_t> const &p0) const;
@@ -76,7 +79,7 @@ namespace eg {
 	private:
 		std::vector<key_t> get_keys() const;
 		std::vector<key_t> get_sorted_keys() const;
-		void sort_values();
+		void sort_values() const;
 
 		//Called on 'descriptor[x][y] = value_t'
 		void Container_set(typename std::vector<value_t>::iterator const iteration, value_t const element);
@@ -182,9 +185,11 @@ template <typename key_t, typename value_t> bool eg::Descriptor<key_t, value_t>:
 	auto keys = get_sorted_keys();
 	if (keys == p0.get_sorted_keys()) {
 		//I'm going to be evil.
-		const_cast<Descriptor<key_t, value_t> *>(this)->sort_values();
+		//const_cast<Descriptor<key_t, value_t> *>(this)->sort_values();
+		sort_values();
 		//Wasn't sure whether not doing a pointer on here would only modify a copy.
-		const_cast<Descriptor<key_t, value_t> *>(&p0)->sort_values();
+		//const_cast<Descriptor<key_t, value_t> *>(&p0)->sort_values();
+		p0.sort_values();
 		for (auto &&element : keys) {
 			if (description.at(element) != p0.description.at(element)) {
 				return(false);
@@ -193,6 +198,21 @@ template <typename key_t, typename value_t> bool eg::Descriptor<key_t, value_t>:
 		return(true);
 	}
 	return(false);
+}
+
+template <typename key_t, typename value_t> bool eg::Descriptor<key_t, value_t>::operator<(eg::Descriptor<key_t, value_t> const &p0) const {
+	auto keys = get_sorted_keys();
+	if (keys == p0.get_sorted_keys()) {
+		sort_values();
+		p0.sort_values();
+		for (auto &&element : keys) {
+			if(description.at(element) != p0.description.at(element)) {
+				return(description.at(element) < p0.description.at(element));
+			}
+		}
+		return(false);
+	}
+	return(keys < okeys);
 }
 
 template <typename key_t, typename value_t> eg::Descriptor<key_t, value_t> eg::Descriptor<key_t, value_t>::operator&(eg::Descriptor<key_t, value_t> const &p0) const {
@@ -237,6 +257,7 @@ template <typename key_t, typename value_t> eg::Descriptor<key_t, value_t>::Desc
 
 template <typename key_t, typename value_t> std::vector<key_t> eg::Descriptor<key_t, value_t>::get_keys() const {
 	std::vector<key_t> rtrn;
+	rtrn.reserve(description.size()));
 	//Add all keys to the vector
 	for (auto &&element : description) {
 		rtrn.push_back(element.first);
@@ -250,7 +271,7 @@ template <typename key_t, typename value_t> std::vector<key_t> eg::Descriptor<ke
 	return(rtrn);
 }
 
-template <typename key_t, typename value_t> void eg::Descriptor<key_t, value_t>::sort_values() {
+template <typename key_t, typename value_t> void eg::Descriptor<key_t, value_t>::sort_values() const {
 	for (auto &&element : description) {
 		std::sort(element.second.begin(), element.second.end());
 	}
