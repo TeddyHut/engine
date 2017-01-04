@@ -37,20 +37,20 @@ namespace eg {
 	protected:
 		virtual bool loadData(DataReference &dataReference, Param<LoadData_Param_e> const param = LoadData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d) const;
 		virtual bool freeData(DataReference &dataReference, Param<FreeData_Param_e> const param = FreeData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d_Scope_SetDestination1) const;
-		virtual bool writeData(DataReference const &dataReference, Param<WriteData_Param_e> const param = WriteData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d) const;
+		virtual bool writeData(DataReference &dataReference, Param<WriteData_Param_e> const param = WriteData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d) const;
 		virtual bool loadData(DataReferenceSet &dataReferenceSet, Param<LoadData_Param_e> const param = LoadData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d) const;
 		virtual bool freeData(DataReferenceSet &dataReferenceSet, Param<FreeData_Param_e> const param = FreeData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d_Scope_SetDestination1) const;
-		virtual bool writeData(DataReferenceSet const &dataReferenceSet, Param<WriteData_Param_e> const param = WriteData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d) const;
-		//Well dang it.
+		virtual bool writeData(DataReferenceSet &dataReferenceSet, Param<WriteData_Param_e> const param = WriteData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d) const;
+
 		virtual bool loadData(GlbRtrn &rtrn, DataReference &dataReference, Param<LoadData_Param_e> const param = LoadData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d) const;
 		virtual bool freeData(GlbRtrn &rtrn, DataReference  &dataReference, Param<FreeData_Param_e> const param = FreeData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d_Scope_SetDestination1) const;
-		virtual bool writeData(GlbRtrn &rtrn, DataReference const &dataReference, Param<WriteData_Param_e> const param = WriteData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d) const;
+		virtual bool writeData(GlbRtrn &rtrn, DataReference &dataReference, Param<WriteData_Param_e> const param = WriteData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d) const;
 		virtual bool loadData(GlbRtrn &rtrn, DataReferenceSet &dataReferenceSet, Param<LoadData_Param_e> const param = LoadData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d) const;
 		virtual bool freeData(GlbRtrn &rtrn, DataReferenceSet &dataReferenceSet, Param<FreeData_Param_e> const param = FreeData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d_Scope_SetDestination1) const;
-		virtual bool writeData(GlbRtrn &rtrn, DataReferenceSet const &dataReferenceSet, Param<WriteData_Param_e> const param = WriteData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d) const;
+		virtual bool writeData(GlbRtrn &rtrn, DataReferenceSet &dataReferenceSet, Param<WriteData_Param_e> const param = WriteData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d) const;
 
-		virtual Object *requestPointer(Descriptor<> const desc, Param<Scope_Param_e> param = Scope_Param_d) const;
-		virtual Object *requestPointer(GlbRtrn &rtrn, Descriptor<> const desc, Param<Scope_Param_e> param = Scope_Param_d) const;
+		virtual Object *requestPointer(Descriptor<> desc, Param<Scope_Param_e> param = Scope_Param_d) const;
+		virtual Object *requestPointer(GlbRtrn &rtrn, Descriptor<> desc, Param<Scope_Param_e> param = Scope_Param_d) const;
 
 		//Will call unbind function of nullptr is given; Will add to -nobject- bound object list otherwise
 		virtual void object_bindFullObject(FullObject_abs_p *const nobject = nullptr);

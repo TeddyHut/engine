@@ -60,4 +60,4 @@ namespace eg {
 
 } //end namespace eg
 
-bool operator== (eg::DataReference const &lhs, eg::DataReference const &rhs);	//dataType
+bool operator== (eg::DataReference const &lhs, eg::DataReference const &rhs);	//Description

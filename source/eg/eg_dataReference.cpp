@@ -66,6 +66,6 @@ eg::DataReference const& eg::DataReferenceSet::Container_get(size_t const iterat
 	return(dataReferenceVector[iteration]);
 }
 
-bool operator== (eg::DataReference const& lhs,eg::DataReference const& rhs) {
+bool operator== (eg::DataReference const &lhs, eg::DataReference const &rhs) {
 	return(lhs.description == rhs.description);
 }

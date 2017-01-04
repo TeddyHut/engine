@@ -73,7 +73,7 @@ eg::DataManipulator::DataManipulator() :
 	dataManipulator_freeData_exe([](eg::GlbRtrn& rtrn, eg::DataReference& dataReference)->bool { static std::string const _egNAME_FUNCTION_seg_ = "dataManipulator_freeData_exe-defualt"; eg_GlbRtrn_egResult(rtrn, eg::FreeData_Result_DefaultFunction_r); return(rtrn); }),
 	dataManipulator_writeData_exe([](eg::GlbRtrn& rtrn, eg::DataReference const& dataReference)->bool { static std::string const _egNAME_FUNCTION_seg_ = "dataManipulator_writeData_exe-defualt"; eg_GlbRtrn_egResult(rtrn, eg::WriteData_Result_DefaultFunction_r); return(rtrn); }) {
 
-	description[Key::egType] = Value::egType::DataManipulator;
+	description[Key::egType] += Value::egType::DataManipulator;
 }
 
 eg::DataManipulator::~DataManipulator() {
