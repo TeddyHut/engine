@@ -35,17 +35,17 @@ namespace eg {
 		//Calls find_matching_dataManipulator and calls dataManipulator_freeData
 		virtual bool object_freeData(GlbRtrn &rtrn, Object const *const object, DataReference &dataReference, Param<FreeData_Param_e> const param = FreeData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d_Scope_SetDestination1) const override;
 		//Calls find_matching_dataManipulator and calls dataManipulator_writeData
-		virtual bool object_writeData(GlbRtrn &rtrn, Object const *const object, DataReference &dataReference, Param<WriteData_Param_e> const param = WriteData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d) const override;
+		virtual bool object_writeData(GlbRtrn &rtrn, Object const *const object, DataReference const &dataReference, Param<WriteData_Param_e> const param = WriteData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d) const override;
 
 		//Calls find_matching_dataManipulator and calls dataManipulator_loadData
 		virtual bool object_loadData(GlbRtrn &rtrn, Object const *const object, DataReferenceSet &dataReferenceSet, Param<LoadData_Param_e> const param = LoadData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d) const override;
 		//Calls find_matching_dataManipulator and calls dataManipulator_freeData
 		virtual bool object_freeData(GlbRtrn &rtrn, Object const *const object, DataReferenceSet &dataReferenceSet, Param<FreeData_Param_e> const param = FreeData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d_Scope_SetDestination1) const override;
 		//Calls find_matching_dataManipulator and calls dataManipulator_writeData
-		virtual bool object_writeData(GlbRtrn &rtrn, Object const *const object, DataReferenceSet &dataReferenceSet, Param<WriteData_Param_e> const param = WriteData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d) const override;
+		virtual bool object_writeData(GlbRtrn &rtrn, Object const *const object, DataReferenceSet const &dataReferenceSet, Param<WriteData_Param_e> const param = WriteData_Param_d, Param<Scope_Param_e> const scope_param = Scope_Param_d) const override;
 
 		//Attempt to get the pointer of an attached object that matches conditions
-		virtual Object *object_requestPointer(GlbRtrn &rtrn, Object const *const requester, Descriptor<> desc, Param<Scope_Param_e> param = Scope_Param_d) const override;
+		virtual Object *object_requestPointer(GlbRtrn &rtrn, Object const *const requester, Descriptor<> const desc, Param<Scope_Param_e> param = Scope_Param_d) const override;
 
 		//Data Manipulation
 		//TODO V2: Rather than write these out 1000 times, do something where it all just happens... (whatever that something is)
@@ -74,7 +74,7 @@ namespace eg {
 		virtual void remove_object(Object *const nobject);
 
 		//Locates matching dataManipulator according to conditions
-		DataManipulator *find_matching_dataManipulator(GlbRtrn &rtrn, DataReference &dataReference, Param<Scope_Param_e> const param = Scope_Param_d) const;
+		DataManipulator *find_matching_dataManipulator(GlbRtrn &rtrn, DataReference const &dataReference, Param<Scope_Param_e> const param = Scope_Param_d) const;
 		
 		std::vector<Object *> attachedObject;
 

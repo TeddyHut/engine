@@ -68,7 +68,7 @@ bool eg::Object::freeData(eg::DataReference& dataReference, eg::Param<eg::FreeDa
 	return(rtrn);
 }
 
-bool eg::Object::writeData(eg::DataReference &dataReference, eg::Param<eg::WriteData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const {
+bool eg::Object::writeData(eg::DataReference const &dataReference, eg::Param<eg::WriteData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const {
 	static std::string const _egNAME_FUNCTION_seg_ = "writeData-ref";
 	eg::GlbRtrn rtrn;
 	writeData(rtrn, dataReference, param, scope_param);
@@ -95,7 +95,7 @@ bool eg::Object::freeData(eg::DataReferenceSet& dataReferenceSet, eg::Param<eg::
 	return(rtrn);
 }
 
-bool eg::Object::writeData(eg::DataReferenceSet &dataReferenceSet, eg::Param<eg::WriteData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const {
+bool eg::Object::writeData(eg::DataReferenceSet const &dataReferenceSet, eg::Param<eg::WriteData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const {
 	static std::string const _egNAME_FUNCTION_seg_ = "writeData-set";
 	eg::GlbRtrn rtrn;
 	writeData(rtrn, dataReferenceSet, param, scope_param);
@@ -124,7 +124,7 @@ bool eg::Object::freeData(eg::GlbRtrn& rtrn, eg::DataReference& dataReference, e
 	return(rtrn);
 }
 
-bool eg::Object::writeData(eg::GlbRtrn& rtrn, eg::DataReference &dataReference, eg::Param<eg::WriteData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const {
+bool eg::Object::writeData(eg::GlbRtrn& rtrn, eg::DataReference const &dataReference, eg::Param<eg::WriteData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const {
 	static std::string const _egNAME_FUNCTION_seg_ = "writeData-glb,ref";
 	if (object_param[Object_Param_e::State_FullObjectBound]) {
 		boundFullObject->object_writeData(rtrn, this, dataReference, param, scope_param);
@@ -144,7 +144,7 @@ bool eg::Object::loadData(eg::GlbRtrn& rtrn, eg::DataReferenceSet& dataReference
 	return(rtrn);
 }
 
-bool eg::Object::freeData(eg::GlbRtrn& rtrn, eg::DataReferenceSet& dataReferenceSet, eg::Param<eg::FreeData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const {
+bool eg::Object::freeData(eg::GlbRtrn& rtrn, eg::DataReferenceSet &dataReferenceSet, eg::Param<eg::FreeData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const {
 	static std::string const _egNAME_FUNCTION_seg_ = "freeData-glb,set";
 	if (object_param[Object_Param_e::State_FullObjectBound]) {
 		boundFullObject->object_freeData(rtrn, this, dataReferenceSet, param, scope_param);
@@ -154,7 +154,7 @@ bool eg::Object::freeData(eg::GlbRtrn& rtrn, eg::DataReferenceSet& dataReference
 	return(rtrn);
 }
 
-bool eg::Object::writeData(eg::GlbRtrn& rtrn, eg::DataReferenceSet & dataReferenceSet, eg::Param<eg::WriteData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const {
+bool eg::Object::writeData(eg::GlbRtrn& rtrn, eg::DataReferenceSet const &dataReferenceSet, eg::Param<eg::WriteData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const {
 	static std::string const _egNAME_FUNCTION_seg_ = "writeData-glb,set";
 	if (object_param[Object_Param_e::State_FullObjectBound]) {
 		boundFullObject->object_writeData(rtrn, this, dataReferenceSet, param, scope_param);

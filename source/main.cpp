@@ -1,11 +1,19 @@
 #include "../include/eg/eg_engine.h"
 #include "../include/eg/macro/rm_w4307_0.h"
 
+#include <map>
+#include <string>
+
 namespace Key {
 	enum e {
 		Fruit = murmur3_32_value("Fruit", 5, 0),
 		Vegetable = murmur3_32_value("Vegetable", 9, 0),
 		Meat = murmur3_32_value("Meat", 4, 0),
+	};
+	std::map<int, std::string> str_map{
+		{Fruit, "Fruit"},
+		{Vegetable, "Vegetable"},
+		{Meat, "Meat"}
 	};
 }
 
@@ -31,36 +39,82 @@ namespace Value {
 			Pork = murmur3_32_value("Pork", 4, 0)
 		};
 	}
+	std::map<int, std::string> str_map{
+		{ Fruit::Apple, "Apple" },
+		{ Fruit::Pear, "Pear" },
+		{ Fruit::Orange, "Orange" },
+		{ Vegetable::Pea, "Pea"},
+		{ Vegetable::Carrot, "Carrot" },
+		{ Vegetable::Corn, "Corn" },
+		{ Meat::Beef, "Beef" },
+		{ Meat::Chicken, "Chicket" },
+		{ Meat::Pork, "Pork" }
+	};
+}
+
+void print_contents(eg::Descriptor<> &p0) {
+	std::cout << "Contains:" << std::endl;
+	for (auto &&element : p0.description) {
+		std::cout << Key::str_map[element.first] << ": ";
+		for (auto &&value : element.second) {
+			std::cout << Value::str_map[value] << ", ";
+		}
+		std::cout << std::endl;
+	}
+	std::cout << std::endl;
 }
 
 int main(int argc, char** argv) {
-	//Create a descriptor called david
 	eg::Descriptor<> david;
-	//Create a new key called "Fruit" and add the value "Apple" to it
-	david[Key::Fruit] = Value::Fruit::Apple;
-	//david now has 1 key, which can be accessed using the following syntax
+	//Create key fruit
 	david[Key::Fruit];
-	//david also has 1 value in the fruit key, which can be accessed using the following syntax
+	print_contents(david);
+	//Add value apple to key fruit
 	david[Key::Fruit][Value::Fruit::Apple];
-	//The apple value can be changed to something else using the following syntax
-	david[Key::Fruit][Value::Fruit::Apple] = Value::Fruit::Orange;
-	//To add a new value to the key, use the following syntax
-	david[Key::Fruit] = Value::Fruit::Pear;
-	//david now contains the key fruit with the values Orange and Pear
-	//We can check whether david contains the value Pear in the key fruit using the following syntax
-	if (david[Key::Fruit] & Value::Fruit::Pear) {
-		//David contains the value pear
-		std::cout << "Pear!" << std::endl;
-	}
-	eg::Descriptor<> desc({ { Key::Fruit,
-	{ Value::Fruit::Orange, Value::Fruit::Pear }
-		} });
-	//To check whether david contains the value Pear or the Value Orange in the Key Fruit, use the following syntax
-	if (david[Key::Fruit] & eg::Descriptor<>::Descriptor({ { Key::Fruit,{ Value::Fruit::Orange, Value::Fruit::Pear } } })[Key::Fruit]) {
-		//Sort of confusing looking?
-		//The smarter way would probably be to use the if statement || instead of something like that
+	print_contents(david);
+	//Add value pear to key fruit
+	david[Key::Fruit] = david[Key::Fruit] + Value::Fruit::Pear;
+	print_contents(david);
+	//Add value orange to key fruit
+	david[Key::Fruit] += Value::Fruit::Orange;
+	print_contents(david);
+	//Remove value orange from key fruit
+	david[Key::Fruit] -= Value::Fruit::Orange;
+	print_contents(david);
+	//Remove value pear from key fruit
+	david[Key::Fruit] = david[Key::Fruit] - Value::Fruit::Pear;
+	print_contents(david);
+	//Add value orange and value pear back to key fruit
+	david[Key::Fruit] += std::vector<int>::vector({ Value::Fruit::Orange, Value::Fruit::Pear });
+	print_contents(david);
+	//Remove apple and pear from key fruit
+	david[Key::Fruit] -= std::vector<int>::vector({ Value::Fruit::Apple, Value::Fruit::Pear });
+	print_contents(david);
+	//Make a michael.
+	eg::Descriptor<> michael;
+	michael[Key::Fruit] += Value::Fruit::Pear;
+	michael[Key::Fruit] += Value::Fruit::Apple;
+	//Add michaels values to david
+	david[Key::Fruit] += michael[Key::Fruit];
+	print_contents(david);
+	//Make michael only contain pear
+	michael[Key::Fruit] = Value::Fruit::Pear;
+	//Print comparison
+	print_contents(david[Key::Fruit] & michael[Key::Fruit]);
+	//Check more comparison
+	if ((david & michael) == michael) {
 		std::cout << "Yes!" << std::endl;
 	}
+	else
+		std::cout << "No!" << std::endl;
+	//Remove pear from david
+	david[Key::Fruit] -= Value::Fruit::Pear;
+	if ((david & michael) == michael) {
+		std::cout << "Yes!" << std::endl;
+	}
+	else
+		std::cout << "No!" << std::endl;
+	
 	system("pause");
 }
 

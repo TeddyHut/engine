@@ -49,7 +49,7 @@ bool eg::FullObject::object_freeData(eg::GlbRtrn &rtrn, eg::Object const *const 
 	return(rtrn);
 }
 
-bool eg::FullObject::object_writeData(eg::GlbRtrn &rtrn, eg::Object const *const object, eg::DataReference &dataReference, eg::Param<eg::WriteData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const {
+bool eg::FullObject::object_writeData(eg::GlbRtrn &rtrn, eg::Object const *const object, eg::DataReference const &dataReference, eg::Param<eg::WriteData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const {
 	static std::string const _egNAME_FUNCTION_seg_ = "object_writeData-ref";
 	auto result = find_matching_dataManipulator(rtrn, dataReference, scope_param);
 	if (!rtrn) {
@@ -88,7 +88,7 @@ bool eg::FullObject::object_freeData(eg::GlbRtrn &rtrn, eg::Object const *const 
 	return(rtrn);
 }
 
-bool eg::FullObject::object_writeData(eg::GlbRtrn &rtrn, eg::Object const *const object, eg::DataReferenceSet &dataReferenceSet, eg::Param<eg::WriteData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const {
+bool eg::FullObject::object_writeData(eg::GlbRtrn &rtrn, eg::Object const *const object, eg::DataReferenceSet const &dataReferenceSet, eg::Param<eg::WriteData_Param_e> const param, eg::Param<eg::Scope_Param_e> const scope_param) const {
 	static std::string const _egNAME_FUNCTION_seg_ = "object_writeData-set";
 	for (auto&& element0 : dataReferenceSet) {
 		object_writeData(rtrn, object, element0, param, scope_param);
@@ -98,7 +98,7 @@ bool eg::FullObject::object_writeData(eg::GlbRtrn &rtrn, eg::Object const *const
 	return(rtrn);
 }
 
-eg::Object* eg::FullObject::object_requestPointer(eg::GlbRtrn &rtrn, eg::Object const *const requester, eg::Descriptor<> desc, eg::Param<eg::Scope_Param_e> param) const {
+eg::Object* eg::FullObject::object_requestPointer(eg::GlbRtrn &rtrn, eg::Object const *const requester, eg::Descriptor<> const desc, eg::Param<eg::Scope_Param_e> param) const {
 	//Create lambda for localSearch function
 	auto searchLocal = [&]()->eg::Object * {
 		static std::string const _egNAME_FUNCTION_seg_ = "object_requestPointer/searchLocal";
@@ -217,7 +217,7 @@ void eg::FullObject::remove_object(Object *const nobject) {
 	util::remove_p0_from_p1(std::vector<eg::Object *>{nobject}, attachedObject);
 }
 
-eg::DataManipulator* eg::FullObject::find_matching_dataManipulator(eg::GlbRtrn& rtrn, eg::DataReference &dataReference, eg::Param<eg::Scope_Param_e> const param) const {
+eg::DataManipulator* eg::FullObject::find_matching_dataManipulator(eg::GlbRtrn& rtrn, eg::DataReference const &dataReference, eg::Param<eg::Scope_Param_e> const param) const {
 	static std::string const _egNAME_FUNCTION_seg_ = "find_matching_dataManipulator-ref";
 	//Get the description of the data requested
 	if (!(dataReference.description)) {
