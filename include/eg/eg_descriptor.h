@@ -101,7 +101,7 @@ namespace eg {
 
 			Descriptor<key_t, value_t> op_descriptor() const {
 				Descriptor<key_t, value_t> rtrn;
-				rtrn.Set_addValue(_iteration, master->description.at(key));
+				rtrn.Set_addValue(_iteration, master->description.at(_iteration));
 				return(rtrn);
 			}
 
@@ -269,7 +269,7 @@ namespace eg {
 			}
 			Descriptor<key_t, value_t> &op_assign(Descriptor<key_t, value_t> const &p0) const {
 				if (p0.keyPresent(_iteration)) {
-					mutable_master->description.at(_iteration) = p0.description.at(_iteraton);
+					mutable_master->description.at(_iteration) = p0.description.at(_iteration);
 					mutable_master->sort_key(_iteration);
 				}
 				return(*mutable_master);
@@ -494,7 +494,8 @@ namespace eg {
 
 		bool op_lessThan(Descriptor<key_t, value_t> const &p0) const {
 			auto keys = get_sorted_keys();
-			if (keys == p0.get_sorted_keys()) {
+			auto okeys = p0.get_sorted_keys();
+			if (keys == okeys) {
 				for (auto &&element : keys) {
 					if ((!key_sorted(element)) || (!p0.key_sorted(element)))
 						return(false);
