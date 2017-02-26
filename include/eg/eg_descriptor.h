@@ -15,7 +15,7 @@
 //TODO: Could actually make template overloads for some of the functions that only overload between Set and value... They all call master->add/remove p0. Or not. Would need a bit of framwork or something. Just an idea.
 
 namespace eg {
-	template <typename key_t = int, typename value_t = int>
+	template <typename key_t = unsigned int, typename value_t = unsigned int>
 	class Descriptor {
 		//TODO: Put some 'typedef' or 'using =' in here, because it looks rather messey
 		//TODO: Do some cool constexpr stuff so that the compiler can do stuff (like a static initialised descriptor for comparison or something?)
@@ -197,6 +197,9 @@ namespace eg {
 		template <>
 		class Set<Descriptor<key_t, value_t>> : public Set<> {
 		public:
+			using Set<>::master;
+			using Set<>::_iteration;
+
 			util::Container::Element<Descriptor<key_t, value_t>, value_t, typename std::vector<value_t>::iterator> op_at(value_t const p0) const {
 				return(util::Container::Element<Descriptor<key_t, value_t>, value_t, typename std::vector<value_t>::iterator>::Element(mutable_master, mutable_master->Set_getIterator(_iteration, p0)));
 			}
@@ -378,6 +381,8 @@ namespace eg {
 		private:
 			Descriptor<key_t, value_t> *mutable_master;
 		};
+		typedef key_t key_type;
+		typedef value_t value_type;
 
 		std::map<key_t, std::vector<value_t>> description;
 

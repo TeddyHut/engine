@@ -52,7 +52,7 @@ namespace Value {
 	};
 }
 
-void print_contents(eg::Descriptor<> &p0) {
+void print_contents(eg::Descriptor<> const &p0) {
 	std::cout << "Contains:" << std::endl;
 	for (auto &&element : p0.description) {
 		std::cout << Key::str_map[element.first] << ": ";
@@ -85,10 +85,10 @@ int main(int argc, char** argv) {
 	david[Key::Fruit] = david[Key::Fruit] - Value::Fruit::Pear;
 	print_contents(david);
 	//Add value orange and value pear back to key fruit
-	david[Key::Fruit] += std::vector<int>::vector({ Value::Fruit::Orange, Value::Fruit::Pear });
+	david[Key::Fruit] += std::vector<eg::Descriptor<>::value_type>::vector({ Value::Fruit::Orange, Value::Fruit::Pear });
 	print_contents(david);
 	//Remove apple and pear from key fruit
-	david[Key::Fruit] -= std::vector<int>::vector({ Value::Fruit::Apple, Value::Fruit::Pear });
+	david[Key::Fruit] -= std::vector<eg::Descriptor<>::value_type>::vector({ Value::Fruit::Apple, Value::Fruit::Pear });
 	print_contents(david);
 	//Make a michael.
 	eg::Descriptor<> michael;
