@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include "eg_foundation.h"
+#include "eg_set.h"
 
 //TODO: Make one of these that works using enums cast to ints or something, so that it's easier to debug (AKA use enums in the templates and cast to ints in the class)
 //TODO: Project when feeling brainy. Make one of these that can take infinate keys O_O (eg [key0][key1][key2])
@@ -15,372 +16,11 @@
 //TODO: Could actually make template overloads for some of the functions that only overload between Set and value... They all call master->add/remove p0. Or not. Would need a bit of framwork or something. Just an idea.
 
 namespace eg {
-	template <typename key_t = unsigned int, typename value_t = unsigned int>
+	template <typename key_t = int, typename value_t = int>
 	class Descriptor {
 		//TODO: Put some 'typedef' or 'using =' in here, because it looks rather messey
 		//TODO: Do some cool constexpr stuff so that the compiler can do stuff (like a static initialised descriptor for comparison or something?)
 	public:
-		//Describes a set key and a vector of values, relative to master
-		template <typename = void>
-		class Set {
-		public:
-			util::Container::Element<Descriptor<key_t, value_t>, value_t, typename std::vector<value_t>::const_iterator> op_at(value_t const p0) const {
-				return(util::Container::Element<Descriptor<key_t, value_t>, value_t, typename std::vector<value_t>::const_iterator>::Element(master, master->Set_getIterator(_iteration, p0)));
-			}
-
-			Descriptor<key_t, value_t> op_add(std::vector<value_t> const &p0) const {
-				eg::Descriptor<key_t, value_t> rtrn = *master;
-				rtrn.Set_addValue(_iteration, p0);
-				return(rtrn);
-			}
-			Descriptor<key_t, value_t> op_add(std::vector<value_t> &&p0) const {
-				Descriptor<key_t, value_t> rtrn = *master;
-				rtrn.Set_addValue(_iteration, std::move(p0));
-				return(rtrn);
-			}
-			Descriptor<key_t, value_t> op_add(Set const &p0) const {
-				eg::Descriptor<key_t, value_t> rtrn = *master;
-				if (_iteration == p0._iteration)
-					rtrn.Set_addValue(_iteration, p0.master->description.at(_iteration));
-				return(rtrn);
-			}
-			Descriptor<key_t, value_t> op_add(value_t const p0) const {
-				eg::Descriptor<key_t, value_t> rtrn = *master;
-				rtrn.Set_addValue(_iteration, p0);
-				return(rtrn);
-			}
-
-			Descriptor<key_t, value_t> op_subtract(std::vector<value_t> const &p0) const {
-				Descriptor<key_t, value_t> rtrn = *master;
-				rtrn.Set_removeValue(_iteration, p0);
-				return(rtrn);
-			}
-			Descriptor<key_t, value_t> op_subtract(Set const &p0) const {
-				eg::Descriptor<key_t, value_t> rtrn = *master;
-				if (_iteration == p0._iteration)
-					rtrn.Set_removeValue(_iteration, p0.master->description.at(_iteration));
-				return(rtrn);
-			}
-			Descriptor<key_t, value_t> op_subtract(value_t const p0) const {
-				Descriptor<key_t, value_t> rtrn = *master;
-				rtrn.Set_removeValue(_iteration, p0);
-				return(rtrn);
-			}
-			bool op_compareEqual(Set const &p0) const {
-				if (_iteration == p0._iteration) {
-					if ((!master->key_sorted(_iteration)) || (!p0.master->key_sorted(_iteration)))
-						return(false);
-					return(master->description.at(_iteration) == p0.master->description.at(_iteration));
-				}
-				return(false);
-			}
-			bool op_compareEqual(value_t const p0) const {
-				return((master->description.at(_iteration).size() == 1) && (master->description.at(_iteration).at(0) == p0));
-			}
-
-			Descriptor<key_t, value_t> op_and(Set const &p0) const {
-				Descriptor<key_t, value_t> rtrn;
-				if (_iteration == p0._iteration) {
-					if ((!master->key_sorted(_iteration)) || (!p0.master->key_sorted(_iteration)))
-						return(rtrn);
-					std::set_intersection(
-						master->description.at(_iteration).begin(), master->description.at(_iteration).end(),
-						p0.master->description.at(_iteration).begin(), p0.master->description.at(_iteration).end(),
-						std::back_inserter((*(rtrn.description.insert(std::make_pair(_iteration, std::vector<value_t>::vector())).first)).second));
-					if (!rtrn.op_bool())
-						rtrn.clear();
-				}
-				return(rtrn);
-			}
-			Descriptor<key_t, value_t> op_and(value_t const p0) const {
-				Descriptor<key_t, value_t> rtrn;
-				if (master->valuePresent(_iteration, p0))
-					rtrn.Set_addValue(_iteration, p0);
-				return(rtrn);
-			}
-
-			Descriptor<key_t, value_t> op_descriptor() const {
-				Descriptor<key_t, value_t> rtrn;
-				rtrn.Set_addValue(_iteration, master->description.at(_iteration));
-				return(rtrn);
-			}
-
-			//Called on 'descriptor[x][y]'
-			//"descriptor vector[x] value[y]"
-			util::Container::Element<Descriptor<key_t, value_t>, value_t, typename std::vector<value_t>::const_iterator> operator[](value_t const p0) const {
-				return(op_at(p0));
-			}
-
-			//Called on 'descriptor0[x] + vector{value0, value1, ...}'
-			//"return a descriptor that contains the net values of the two sets"
-			Descriptor<key_t, value_t> operator+(std::vector<value_t> const &p0) const {
-				return(op_add(p0));
-			}
-			Descriptor<key_t, value_t> operator+(std::vector<value_t> &&p0) const {
-				return(op_add(std::move(p0)));
-			}
-
-			//Called on 'descriptor0[x] + descriptor[y]'
-			//"return a descriptor that contains the net values of the two sets"
-			Descriptor<key_t, value_t> operator+(Set const &p0) const {
-				return(op_add(p0));
-			}
-
-			//Called on 'descriptor[x] + value_t'
-			//"return a descriptor that contains set[x] + value_t"
-			Descriptor<key_t, value_t> operator+(value_t const p0) const {
-				return(op_add(p0));
-			}
-
-			//Called on 'descriptor0[x] - vector{value0, value1, ...}'
-			//"return a descriptor that contains the values that are in vector[x], except for the values that are in vector"
-			Descriptor<key_t, value_t> operator-(std::vector<value_t> const &p0) const {
-				return(op_subtract(p0));
-			}
-
-			//Called on 'descriptor0[x] - descriptor1[y]'
-			//"return a descriptor that contains the values that are in vector[x], except for the values that are in vector[y]"
-			Descriptor<key_t, value_t> operator-(Set const &p0) const {
-				return(op_subtract(p0));
-			}
-
-			//Called on 'descriptor0[x] - descriptor1[y]'
-			//"return a descriptor that contains the values that are in vector[x], except for value_t"
-			Descriptor<key_t, value_t> operator-(value_t const p0) const {
-				return(op_subtract(p0));
-			}
-
-			//Called on 'descriptor0[x] == descriptor1[y]'
-			//"descriptor0 vector[x] is equal to descriptor1 vector[y]"
-			bool operator==(Set const &p0) const {
-				return(op_compareEqual(p0));
-			}
-
-			//Called on 'descriptor[x] == value_t'
-			//"descriptor vector[x] contains only value_t"
-			bool operator==(value_t const p0) const {
-				return(op_compareEqual(p0));
-			}
-
-			//Called on 'descriptor[x] & descriptor[y]'
-			//"create a descriptor that contains vector[x] if(x equals y) with the values that were equal in both vectors"
-			Descriptor<key_t, value_t> operator&(Set const &p0) const {
-				return(op_and(p0));
-			}
-
-			//Called on 'descriptor[x] & value_t'
-			//"create a descriptor that contains vector[x] with only value_t if value_t was already present"
-			Descriptor<key_t, value_t> operator&(value_t const p0) const {
-				return(op_and(p0));
-			}
-
-			//Called on '*_cast<Descriptor<key_t, value_t>(descriptor[x])'
-			//"create a descriptor that contains only key set[x], with all values that were in key set[x]"
-			operator Descriptor<key_t, value_t>() const {
-				return(op_descriptor());
-			}
-
-			//Don't think that we need a move version of this (might cause some havoc)
-
-			Set(Descriptor<key_t, value_t> const *const master, key_t const iteration) : master(master), _iteration(iteration) {}
-		protected:
-			Descriptor<key_t, value_t> const *master;
-			key_t _iteration;
-		};
-
-		template <>
-		class Set<Descriptor<key_t, value_t> const> : public Set<> {
-		public:
-			Set(Descriptor<key_t, value_t> const *const master, key_t const iteration) : Set<>(master, iteration) {}
-		};
-
-		template <>
-		class Set<Descriptor<key_t, value_t>> : public Set<> {
-		public:
-			using Set<>::master;
-			using Set<>::_iteration;
-
-			util::Container::Element<Descriptor<key_t, value_t>, value_t, typename std::vector<value_t>::iterator> op_at(value_t const p0) const {
-				return(util::Container::Element<Descriptor<key_t, value_t>, value_t, typename std::vector<value_t>::iterator>::Element(mutable_master, mutable_master->Set_getIterator(_iteration, p0)));
-			}
-
-			Descriptor<key_t, value_t> &op_addAssign(std::vector<value_t> const &p0) const {
-				mutable_master->Set_addValue(_iteration, p0);
-				return(*mutable_master);
-			}
-			Descriptor<key_t, value_t> &op_addAssign(std::vector<value_t> &&p0) const {
-				mutable_master->Set_addValue(_iteration, std::move(p0));
-				return(*mutable_master);
-			}
-			Descriptor<key_t, value_t> &op_addAssign(Set const &p0) const {
-				if (_iteration == p0._iteration)
-					mutable_master->Set_addValue(_iteration, p0.mutable_master->description.at(_iteration));
-				return(*mutable_master);
-			}
-			Descriptor<key_t, value_t> &op_addAssign(Set<Descriptor<key_t, value_t> const> const &p0) const {
-				if (_iteration == p0._iteration)
-					mutable_master->Set_addValue(_iteration, p0.master->description.at(_iteration));
-				return(*mutable_master);
-			}
-			Descriptor<key_t, value_t> &op_addAssign(value_t const p0) const {
-				mutable_master->Set_addValue(_iteration, p0);
-				return(*mutable_master);
-			}
-
-			Descriptor<key_t, value_t> &op_subtractAssign(std::vector<value_t> const &p0) const {
-				mutable_master->Set_removeValue(_iteration, p0);
-				return(*mutable_master);
-			}
-			Descriptor<key_t, value_t> &op_subtractAssign(Set &p0) const {
-				if (_iteration == p0._iteration)
-					mutable_master->Set_removeValue(_iteration, p0.mutable_master->description.at(_iteration));
-				return(*mutable_master);
-			}
-			Descriptor<key_t, value_t> &op_subtractAssign(Set<Descriptor<key_t, value_t> const> const &p0) const {
-				if (_iteration == p0._iteration)
-					mutable_master->Set_removeValue(_iteration, p0.master->description.at(_iteration));
-				return(*mutable_master);
-			}
-			Descriptor<key_t, value_t> &op_subtractAssign(value_t const p0) const {
-				mutable_master->Set_removeValue(_iteration, p0);
-				return(*mutable_master);
-			}
-
-			Descriptor<key_t, value_t> &op_assign(std::vector<value_t> const &p0) const {
-				mutable_master->description.at(_iteration) = p0;
-				mutable_master->sort_key(_iteration);
-				return(*mutable_master);
-			}
-			Descriptor<key_t, value_t> &op_assign(std::vector<value_t> &&p0) const {
-				mutable_master->description.at(_iteration) = std::move(p0);
-				mutable_master->sort_key(_iteration);
-				return(*mutable_master);
-			}
-			Descriptor<key_t, value_t> &op_assign(Set const &p0) const {
-				if (_iteration == p0._iteration) {
-					mutable_master->description.at(_iteration) = p0.mutable_master->description.at(_iteration);
-					mutable_master->sort_key(_iteration);
-				}
-				return(*mutable_master);
-			}
-			Descriptor<key_t, value_t> &op_assign(Set<Descriptor<key_t, value_t> const> const &p0) const {
-				if (_iteration == p0._iteration) {
-					mutable_master->description.at(_iteration) = p0.master->description.at(_iteration);
-					mutable_master->sort_key(_iteration);
-				}
-				return(*mutable_master);
-			}
-			Descriptor<key_t, value_t> &op_assign(Descriptor<key_t, value_t> const &p0) const {
-				if (p0.keyPresent(_iteration)) {
-					mutable_master->description.at(_iteration) = p0.description.at(_iteration);
-					mutable_master->sort_key(_iteration);
-				}
-				return(*mutable_master);
-			}
-			Descriptor<key_t, value_t> &op_assign(Descriptor<key_t, value_t> &&p0) const {
-				if (p0.keyPresent(_iteration)) {
-					mutable_master->description.at(_iteration) = std::move(p0.description.at(_iteration));
-					mutable_master->sort_key(_iteration);
-				}
-				return(*mutable_master);
-			}
-			Descriptor<key_t, value_t> &op_assign(value_t const p0) const {
-				mutable_master->description.at(_iteration).clear();
-				mutable_master->description.at(_iteration).push_back(p0);
-				return(*mutable_master);
-			}
-
-			//Called on 'descriptor[x][y]'
-			//"descriptor vector[x] value[y]"
-			util::Container::Element<Descriptor<key_t, value_t>, value_t, typename std::vector<value_t>::iterator> operator[](value_t const p0) const {
-				return(op_at(p0));
-			}
-
-			//Called on 'descriptor0[x] += descriptor1[y]'
-			//"add values from descriptor1[y] to descriptor0[x] that are not already present"
-			Descriptor<key_t, value_t> &operator+=(Set const &p0) const {
-				return(op_addAssign(p0));
-			}
-			Descriptor<key_t, value_t> &operator+=(Set<Descriptor<key_t, value_t> const> const &p0) const {
-				return(op_addAssign(p0));
-			}
-
-			//Called on 'descriptor[x] += vector{value0, value1, ...}
-			//"add the contents of vector to descriptor vector[x] that are not already present"
-			Descriptor<key_t, value_t> &operator+=(std::vector<value_t> const &p0) const {
-				return(op_addAssign(p0));
-			}
-			Descriptor<key_t, value_t> &operator+=(std::vector<value_t> &&p0) const {
-				return(op_addAssign(std::move(p0)));
-			}
-
-			//Called on 'descriptor[x] += value_t'
-			//"add value_t to descriptor vector [x] if not already present"
-			Descriptor<key_t, value_t> &operator+=(value_t const p0) const {
-				return(op_addAssign(p0));
-			}
-
-			//Called on 'descriptor[x] -= vector{value0, value1, ...}
-			//"remove the contents of vector from descriptor vector[x]"
-			Descriptor<key_t, value_t> &operator-=(std::vector<value_t> const &p0) const {
-				return(op_subtractAssign(p0));
-			}
-
-			//Called on 'descriptor0[x] -= descriptor1[y]'
-			//"remove the values that are in descriptor vector[y] from descriptor vector[x]"
-			Descriptor<key_t, value_t> &operator-=(Set const &p0) const {
-				return(op_subtractAssign(p0));
-			}
-			Descriptor<key_t, value_t> &operator-=(Set<Descriptor<key_t, value_t> const> const &p0) const {
-				return(op_subtractAssign(p0));
-			}
-
-			//Called on 'descriptor0[x] -= value_t'
-			//"remove value_t from descriptor vector[x]"
-			Descriptor<key_t, value_t> &operator-=(value_t const p0) const {
-				return(op_subtractAssign(p0));
-			}
-
-			//Called on 'descriptor[x] = vector{value0, value1...}
-			//"make the only values in vector [x] those inside the initializer_list"
-			Descriptor<key_t, value_t> &operator=(std::vector<value_t> const &p0) const {
-				return(op_assign(p0));
-			}
-
-			//Called on 'descriptor[x] = std::move(some vector)'
-			//"make the only values in vector [x] those inside some vector"
-			Descriptor<key_t, value_t> &operator=(std::vector<value_t> &&p0) const {
-				return(op_assign(std::move(p0)));
-			}
-
-			//Called on 'descriptor[x] = descriptor[y]'
-			//"make the values in descriptor vector [x] equal the values in descriptor vector[y]'
-			Descriptor<key_t, value_t> &operator=(Set const &p0) const {
-				return(op_assign(p0));
-			}
-			Descriptor<key_t, value_t> &operator=(Set<Descriptor<key_t, value_t> const> const &p0) const {
-				return(op_assign(p0));
-			}
-
-			//Called on 'descriptor[x] = descriptor1'
-			//"make the values in descriptor vector[x] equal to the values in descriptor1 vector[x]"
-			Descriptor<key_t, value_t> &operator=(Descriptor<key_t, value_t> const &p0) const {
-				return(op_assign(p0));
-			}
-			Descriptor<key_t, value_t> &operator=(Descriptor<key_t, value_t> &&p0) const {
-				return(op_assign(std::move(p0)));
-			}
-
-			//Called on 'descriptor[x] = value_t'
-			//"make the only value in vector[x] value_t"
-			Descriptor<key_t, value_t> &operator=(value_t const p0) const {
-				return(op_assign(p0));
-			}
-
-			Set(Descriptor<key_t, value_t> *const master, key_t const iteration) : Set<>(master, iteration), mutable_master(master) {}
-		private:
-			Descriptor<key_t, value_t> *mutable_master;
-		};
 		typedef key_t key_type;
 		typedef value_t value_type;
 
@@ -389,11 +29,11 @@ namespace eg {
 
 		//Called on 'descriptor[x]'
 		//"access descriptor key set [x] (see class "Set" for further operations)"
-		Set<Descriptor<key_t, value_t>> operator[](key_t const p0) {
+		Set<key_t, value_t, Descriptor<key_t, value_t>> operator[](key_t const p0) {
 			return(op_at(p0));
 		}
 
-		Set<Descriptor<key_t, value_t> const> operator[](key_t const p0) const {
+		Set<key_t, value_t, Descriptor<key_t, value_t> const> operator[](key_t const p0) const {
 			return(op_at(p0));
 		}
 
@@ -472,13 +112,13 @@ namespace eg {
 			description.clear();
 		}
 
-		typename Set<Descriptor<key_t, value_t>> op_at(key_t const p0) {
+		typename Set<key_t, value_t, Descriptor<key_t, value_t>> op_at(key_t const p0) {
 			if (!keyPresent(p0))
 				Set_addKey(p0);
-			return(Set<Descriptor<key_t, value_t>>::Set(this, p0));
+			return(Set<key_t, value_t, Descriptor<key_t, value_t>>::Set(this, p0));
 		}
-		typename Set<Descriptor<key_t, value_t> const> op_at(key_t const p0) const {
-			return(Set<Descriptor<key_t, value_t> const>::Set(this, p0));
+		typename Set<key_t, value_t, Descriptor<key_t, value_t> const> op_at(key_t const p0) const {
+			return(Set<key_t, value_t, Descriptor<key_t, value_t> const>::Set(this, p0));
 		}
 
 		bool op_compareEqual(Descriptor<key_t, value_t> const &p0) const {
@@ -682,8 +322,12 @@ namespace eg {
 			description.insert(std::make_pair(key, std::vector<value_t>::vector()));
 		}
 
-		friend Set;
-		friend Set const;
+		friend Set<key_t, value_t, Descriptor<key_t, value_t>>;
+		friend Set<key_t, value_t, Descriptor<key_t, value_t>> const;
+		friend Set<key_t, value_t, Descriptor<key_t, value_t> const>;
+		friend Set<key_t, value_t, Descriptor<key_t, value_t> const> const;
+		friend Const_Set<key_t, value_t, Descriptor<key_t, value_t>>;
+		friend Const_Set<key_t, value_t, Descriptor<key_t, value_t>> const;
 		friend util::Container::Iterator<Descriptor<key_t, value_t>, value_t, typename std::vector<value_t>::iterator>;
 		friend util::Container::Iterator<Descriptor<key_t, value_t>, value_t, typename std::vector<value_t>::iterator> const;
 		friend util::Container::Element<Descriptor<key_t, value_t>, value_t, typename std::vector<value_t>::iterator>;
