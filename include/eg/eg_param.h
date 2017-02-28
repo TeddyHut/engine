@@ -1,9 +1,12 @@
 #pragma once
 
 #include <cstdint>
-#include <cstdarg>
+#include <utility>
 #include <vector>
+#include <algorithm>
 #include "eg_foundation.h"
+
+//TODO: Update to better C++ (AND STILL NEED TO LEARN VARIADIC TEMPLATES)
 
 namespace eg {
 	template<typename param_t = size_t> class Param {
@@ -21,11 +24,16 @@ namespace eg {
 
 		void add_param(size_t const amount);					//Add -amount- param to stack
 		void remove_param(size_t const amount);					//Remove -amount- param from stack
-
+		
+		//True if the param is an enum (I think)
 		bool param_enum;
+		//The number of parameters in total
 		size_t param_amount;
+		//The number of parameters (bits) free (unallocated) in the last storagae byte
 		uint8_t param_free;
+		//The parameter storage
 		std::vector<uint8_t> param_data;
+		//The order that the parameters are stored
 		std::vector<size_t> param_order;
 
 		auto begin()->eg::util::Container::Iterator<eg::Param<param_t>, bool>;		//Return a iterator to stack begin
@@ -36,7 +44,8 @@ namespace eg {
 		auto operator[](param_t const p0) const->eg::util::Container::Element<eg::Param<param_t>, bool> const;
 
 		Param(size_t const amount, bool const nenum = true);
-		Param(size_t const amount, bool const nenum, param_t param, bool nbit, ...);
+		Param(std::initializer_list<std::pair<param_t, bool>> const list);
+
 		Param();
 		~Param();
 	private:
@@ -162,22 +171,11 @@ template<typename param_t> eg::Param<param_t>::Param(size_t const amount, bool c
 	add_param(amount);
 }
 
-template<typename param_t> eg::Param<param_t>::Param(size_t const amount, bool const nenum, param_t param, bool nbit, ...) : param_amount(0), param_free(0) {
-	//One day variadic templates, one day.
-	param_enum = nenum;
-	add_param(amount);
-	set_param(param, nbit);
-	size_t amountc = amount - 1;
-
-	va_list ellipse;
-	va_start(ellipse, nbit);
-
-	for (size_t i = 0; i < amountc; i++) {
-		param_t const tparam = va_arg(ellipse, param_t);
-		bool const tbit = (va_arg(ellipse, int)) != 0;
-		set_param(tparam, tbit);
-	}
-	va_end(ellipse);
+template<typename param_t>
+eg::Param<param_t>::Param(std::initializer_list<std::pair<param_t, bool>> const list)
+{
+	param_enum = true;
+	std::for_each(list.begin(), list.end(), [&](std::pair<param_t, bool> const &p0) { set_param(p0.first, p0.second); });
 }
 
 template<typename param_t> eg::Param<param_t>::Param() : param_enum(true), param_amount(0), param_free(0) {
@@ -195,9 +193,7 @@ template<typename param_t> void eg::Param<param_t>::set_param_p(size_t const par
 	bool result;
 	size_t paramc = get_param_index(param, &result, temp_param_enum);
 	if (result) {
-		bool nbitc = nbit;
-		param_data[paramc / 8] &= ~(1 << (paramc % 8));
-		param_data[paramc / 8] |= (nbitc << (paramc % 8));
+		nbit ? param_data[paramc / 8] |= static_cast<uint8_t>((1 << (paramc % 8))) : param_data[paramc / 8] &= static_cast<uint8_t>(~(1 << (paramc % 8)));
 	}
 }
 

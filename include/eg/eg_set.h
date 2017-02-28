@@ -73,10 +73,11 @@ namespace eg {
 			if (_iteration == p0._iteration) {
 				if ((!master->key_sorted(_iteration)) || (!p0.master->key_sorted(_iteration)))
 					return(rtrn);
+				std::vector<value_t> vec;
 				std::set_intersection(
 					master->description.at(_iteration).begin(), master->description.at(_iteration).end(),
 					p0.master->description.at(_iteration).begin(), p0.master->description.at(_iteration).end(),
-					std::back_inserter((*(rtrn.description.insert(std::make_pair(_iteration, std::vector<value_t>::vector())).first)).second));
+					std::back_inserter((*(rtrn.description.insert(std::make_pair(_iteration, vec)).first)).second));
 				if (!rtrn.op_bool())
 					rtrn.clear();
 			}
@@ -187,8 +188,8 @@ namespace eg {
 	template <typename key_t, typename value_t>
 	class Set<key_t, value_t, Descriptor<key_t, value_t> const> : public Const_Set<key_t, value_t, Descriptor<key_t, value_t>> {
 	public:
-		using Const_Set::master;
-		using Const_Set::_iteration;
+		using Const_Set<key_t, value_t, Descriptor<key_t, value_t>>::master;
+		using Const_Set<key_t, value_t, Descriptor<key_t, value_t>>::_iteration;
 
 		Set(Descriptor<key_t, value_t> const *const master, key_t const iteration) : Const_Set<key_t, value_t, Descriptor<key_t, value_t>>(master, iteration) {}
 	};
@@ -197,11 +198,11 @@ namespace eg {
 	template <typename key_t, typename value_t>
 	class Set<key_t, value_t, Descriptor<key_t, value_t>> : public Const_Set<key_t, value_t, Descriptor<key_t, value_t>> {
 	public:
-		using Const_Set::master;
-		using Const_Set::_iteration;
+		using Const_Set<key_t, value_t, Descriptor<key_t, value_t>>::master;
+		using Const_Set<key_t, value_t, Descriptor<key_t, value_t>>::_iteration;
 
 		util::Container::Element<Descriptor<key_t, value_t>, value_t, typename std::vector<value_t>::iterator> op_at(value_t const p0) const {
-			return(util::Container::Element<Descriptor<key_t, value_t>, value_t, typename std::vector<value_t>::iterator>::Element(mutable_master, mutable_master->Set_getIterator(_iteration, p0)));
+			return(util::Container::Element<Descriptor<key_t, value_t>, value_t, typename std::vector<value_t>::iterator>(mutable_master, mutable_master->Set_getIterator(_iteration, p0)));
 		}
 
 		Descriptor<key_t, value_t> &op_addAssign(std::vector<value_t> const &p0) const {

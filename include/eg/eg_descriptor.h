@@ -16,7 +16,7 @@
 //TODO: Could actually make template overloads for some of the functions that only overload between Set and value... They all call master->add/remove p0. Or not. Would need a bit of framwork or something. Just an idea.
 
 namespace eg {
-	template <typename key_t = int, typename value_t = int>
+	template <typename key_t = unsigned int, typename value_t = unsigned int>
 	class Descriptor {
 		//TODO: Put some 'typedef' or 'using =' in here, because it looks rather messey
 		//TODO: Do some cool constexpr stuff so that the compiler can do stuff (like a static initialised descriptor for comparison or something?)
@@ -112,13 +112,13 @@ namespace eg {
 			description.clear();
 		}
 
-		typename Set<key_t, value_t, Descriptor<key_t, value_t>> op_at(key_t const p0) {
+		Set<key_t, value_t, Descriptor<key_t, value_t>> op_at(key_t const p0) {
 			if (!keyPresent(p0))
 				Set_addKey(p0);
-			return(Set<key_t, value_t, Descriptor<key_t, value_t>>::Set(this, p0));
+			return(Set<key_t, value_t, Descriptor<key_t, value_t>>(this, p0));
 		}
-		typename Set<key_t, value_t, Descriptor<key_t, value_t> const> op_at(key_t const p0) const {
-			return(Set<key_t, value_t, Descriptor<key_t, value_t> const>::Set(this, p0));
+		Set<key_t, value_t, Descriptor<key_t, value_t> const> op_at(key_t const p0) const {
+			return(Set<key_t, value_t, Descriptor<key_t, value_t> const>(this, p0));
 		}
 
 		bool op_compareEqual(Descriptor<key_t, value_t> const &p0) const {
@@ -155,10 +155,11 @@ namespace eg {
 
 		bool op_greaterThan(Descriptor<key_t, value_t> const &p0) const {
 			auto keys = get_sorted_keys();
-			if (keys == p0.get_sorted_keys()) {
-				if ((!key_sorted(element)) || (!p0.key_sorted(element)))
-					return(false);
+			auto okeys = p0.get_sorted_keys();
+			if (keys == okeys) {
 				for (auto &&element : keys) {
+					if ((!key_sorted(element)) || (!p0.key_sorted(element)))
+						return(false);
 					if (description.at(element) != p0.description.at(element)) {
 						return(description.at(element) > p0.description.at(element));
 					}
@@ -179,10 +180,11 @@ namespace eg {
 			for (auto &&key : common_keys) {
 				if ((!key_sorted(key)) || (!p0.key_sorted(key)))
 					continue;
+				std::vector<value_t> vec;
 				std::set_intersection(
 					description.at(key).begin(), description.at(key).end(),
 					p0.description.at(key).begin(), p0.description.at(key).end(),
-					std::back_inserter((*(rtrn.description.insert(std::make_pair(key, std::vector<value_t>::vector())).first)).second));
+					std::back_inserter((*(rtrn.description.insert(std::make_pair(key, vec)).first)).second));
 			}
 			return(rtrn);
 		}
@@ -319,18 +321,17 @@ namespace eg {
 		}
 
 		void Set_addKey(key_t const key) {
-			description.insert(std::make_pair(key, std::vector<value_t>::vector()));
+			//Todo: Find the correct way to insert default initialized objects into an expression.
+			std::vector<value_t> vec;
+			description.insert(std::make_pair(key, vec));
 		}
 
 		friend Set<key_t, value_t, Descriptor<key_t, value_t>>;
-		friend Set<key_t, value_t, Descriptor<key_t, value_t>> const;
 		friend Set<key_t, value_t, Descriptor<key_t, value_t> const>;
-		friend Set<key_t, value_t, Descriptor<key_t, value_t> const> const;
 		friend Const_Set<key_t, value_t, Descriptor<key_t, value_t>>;
-		friend Const_Set<key_t, value_t, Descriptor<key_t, value_t>> const;
 		friend util::Container::Iterator<Descriptor<key_t, value_t>, value_t, typename std::vector<value_t>::iterator>;
-		friend util::Container::Iterator<Descriptor<key_t, value_t>, value_t, typename std::vector<value_t>::iterator> const;
+		//friend util::Container::Iterator<Descriptor<key_t, value_t>, value_t, typename std::vector<value_t>::iterator> const;
 		friend util::Container::Element<Descriptor<key_t, value_t>, value_t, typename std::vector<value_t>::iterator>;
-		friend util::Container::Element<Descriptor<key_t, value_t>, value_t, typename std::vector<value_t>::iterator> const;
+		//friend util::Container::Element<Descriptor<key_t, value_t>, value_t, typename std::vector<value_t>::iterator> const;
 	};
 }

@@ -85,10 +85,10 @@ int main(int argc, char** argv) {
 	david[Key::Fruit] = david[Key::Fruit] - Value::Fruit::Pear;
 	print_contents(david);
 	//Add value orange and value pear back to key fruit
-	david[Key::Fruit] += std::vector<eg::Descriptor<>::value_type>::vector({ Value::Fruit::Orange, Value::Fruit::Pear });
+	david[Key::Fruit] += std::vector<eg::Descriptor<>::value_type>{ Value::Fruit::Orange, Value::Fruit::Pear };
 	print_contents(david);
 	//Remove apple and pear from key fruit
-	david[Key::Fruit] -= std::vector<eg::Descriptor<>::value_type>::vector({ Value::Fruit::Apple, Value::Fruit::Pear });
+	david[Key::Fruit] -= std::vector<eg::Descriptor<>::value_type>{ Value::Fruit::Apple, Value::Fruit::Pear };
 	print_contents(david);
 	//Make a michael.
 	eg::Descriptor<> michael;
@@ -114,8 +114,6 @@ int main(int argc, char** argv) {
 	}
 	else
 		std::cout << "No!" << std::endl;
-	
-	system("pause");
 }
 
 #include "../include/eg/macro/rm_w4307_1.h"

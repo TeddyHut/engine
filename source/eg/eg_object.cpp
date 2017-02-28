@@ -2,10 +2,10 @@
 
 static std::string const _egNAME_FILE_seg_ = eg::util::truncateFilename(__FILE__);
 
-eg::Param<eg::Object::Object_Param_e> const eg::Object::Object_Param_d(3, true,
-	eg::Object::Object_Param_e::State_RunRunoverInit, true,
-	eg::Object::Object_Param_e::State_FullObjectBound, false,
-	eg::Object::Object_Param_e::Info_DynamicallyAllocated, false);
+eg::Param<eg::Object::Object_Param_e> const eg::Object::Object_Param_d {
+	{ eg::Object::Object_Param_e::State_RunRunoverInit, true },
+	{ eg::Object::Object_Param_e::State_FullObjectBound, false },
+	{ eg::Object::Object_Param_e::Info_DynamicallyAllocated, false } };
 
 void eg::Object::object_runover(void *rundata) {
 	if(object_param[Object_Param_e::State_RunRunoverInit]) {

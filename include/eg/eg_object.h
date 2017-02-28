@@ -29,7 +29,7 @@ namespace eg {
 
 		Param<Object_Param_e> object_param = Object_Param_d;
 		
-		Descriptor<> description = eg::Descriptor<>::Descriptor({ {Key::egType, {Value::egType::Object} } });
+		Descriptor<> description = eg::Descriptor<>({ {Key::egType, {Value::egType::Object} } });
 
 		Object();
 		virtual ~Object();

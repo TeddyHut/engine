@@ -15,8 +15,8 @@ eg::DataManipulator::DataReferenceWrapper& eg::DataManipulator::DataReferenceWra
 eg::DataManipulator::DataReferenceWrapper::DataReferenceWrapper(DataReference const& ndataReference, size_t const nreferenceCount) : dataReference(ndataReference), referenceCount(nreferenceCount) {
 }
 
-eg::Param<eg::DataManipulator::DataManipulator_Param_e> const eg::DataManipulator::DataManipulator_Param_d(1, true,
-	eg::DataManipulator::DataManipulator_Param_e::Deallocate_AllData_UponDecontruction, true);
+eg::Param<eg::DataManipulator::DataManipulator_Param_e> const eg::DataManipulator::DataManipulator_Param_d {
+	{ eg::DataManipulator::DataManipulator_Param_e::Deallocate_AllData_UponDecontruction, true } };
 
 
 bool eg::DataManipulator::dataManipulator_loadData(eg::GlbRtrn& rtrn, eg::DataReference& dataReference, eg::Param<eg::LoadData_Param_e> const param) {
@@ -33,15 +33,15 @@ bool eg::DataManipulator::dataManipulator_writeData(eg::GlbRtrn& rtrn, eg::DataR
 
 bool eg::DataManipulator::dataManipulator_deallocAllData(eg::GlbRtrn& rtrn) {
 	static std::string const _egNAME_FUNCTION_seg_ = "dataManipulator_deallocAllData";
-	for (size_t i = 0; i < dataManipulator_allocatedData.size();i++) {		//If this doesn't work out just make a copy of allocatedData and use that
+	for (size_t i = 0; i < dataManipulator_allocatedData.size(); i++) {		//If this doesn't work out just make a copy of allocatedData and use that
 		size_t a = dataManipulator_allocatedData.size();
-		eg::Param<eg::FreeData_Param_e> param(eg::FreeData_Param_z, true,
-			FreeData_Param_e::Function_All, true,
-			FreeData_Param_e::Condition_DescriptionOnly, false,
-			FreeData_Param_e::Condition_FromEnd, false,
-			FreeData_Param_e::Condition_IgnoreAlteration, true,
-			FreeData_Param_e::Condition_IgnoreReferenceCount, true,
-			FreeData_Param_e::Data_SetNull, true);
+		eg::Param<eg::FreeData_Param_e> param {
+			{ FreeData_Param_e::Function_All, true },
+			{ FreeData_Param_e::Condition_DescriptionOnly, false },
+			{ FreeData_Param_e::Condition_FromEnd, false },
+			{ FreeData_Param_e::Condition_IgnoreAlteration, true },
+			{ FreeData_Param_e::Condition_IgnoreReferenceCount, true },
+			{ FreeData_Param_e::Data_SetNull, true } };
 		dataManipulator_freeData(rtrn, dataManipulator_allocatedData[i], param);
 		i -= (a - dataManipulator_allocatedData.size());
 	}
@@ -117,7 +117,7 @@ bool eg::DataManipulator::dataManipulator_freeData_process(eg::GlbRtrn& rtrn, eg
 			if (!rtrn) {																			//If it was successful
 				if (param[FreeData_Param_e::Data_SetNull]) {										//if requests setnull
 					dataReference.dataSize = eg::DataReference::DATASIZE_UNDEFINED;					//Set external -dataReference- size to undefined
-					dataReference.description = eg::Descriptor<>::Descriptor();						//Basically reset the desriptor
+					dataReference.description.clear();												//Basically reset the desriptor
 					dataReference.dataPointer = nullptr;											//Set external -dataReference- pointer to nullptr
 				}
 				dataManipulator_allocatedData.erase(dataManipulator_allocatedData.begin() + itr);	//Erase from allocatedData

@@ -30,7 +30,7 @@ namespace eg {
 	enum class LoadData_Param_e : size_t {
 		Data_New = 0,					//Default = 0; Create a new set of data for the alloc
 		Condition_IgnoreAlteration		//Default = 0; When searching previous reference will ignore the alteration
-	}; extern size_t const LoadData_Param_z; extern eg::Param<LoadData_Param_e> const LoadData_Param_d;
+	}; extern eg::Param<LoadData_Param_e> const LoadData_Param_d;
 
 	enum class FreeData_Param_e : size_t {
 		Function_All = 0,				//Default = 0; Free all allocated data matching conditions
@@ -39,16 +39,16 @@ namespace eg {
 		Condition_IgnoreAlteration,		//Default = 0; When searching reference to dealloc will ignore the alteration
 		Condition_IgnoreReferenceCount,	//Default = 0; When determining whether to dealloc data, will ignore referenceCount
 		Data_SetNull					//Default = 1; When dealloc data occurs, external source will have values set to null
-	}; extern size_t const FreeData_Param_z; extern eg::Param<FreeData_Param_e> const FreeData_Param_d;
+	}; extern eg::Param<FreeData_Param_e> const FreeData_Param_d;
 
 	enum class WriteData_Param_e : size_t {
-	}; extern size_t const WriteData_Param_z;  extern eg::Param<WriteData_Param_e> const WriteData_Param_d;
+	}; extern eg::Param<WriteData_Param_e> const WriteData_Param_d;
 
 	enum class Scope_Param_e : size_t {
 		Scope_LocalOnly = 0,	//Default = 0; Will only search the fullObject in which the function was called
 		Scope_LocalFirst,		//Default = 0; Will first search the fullObject in which the function was called, and if not successful will search externally
 		Scope_SetDestination	//Default = 0; FreeData only. Returns to dataManipulator that allocated the data in the first place.
-	}; extern size_t const Scope_Param_z; extern eg::Param<Scope_Param_e> const Scope_Param_d; extern eg::Param<Scope_Param_e> const Scope_Param_d_Scope_SetDestination1;
+	}; extern eg::Param<Scope_Param_e> const Scope_Param_d; extern eg::Param<Scope_Param_e> const Scope_Param_d_Scope_SetDestination1;
 
 	enum class LoadData_Result_e : size_t {
 		Error = 2,				//Err... Why does error = 2? Don't think that that is needed.
