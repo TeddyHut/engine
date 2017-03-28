@@ -1,10 +1,10 @@
 #include "../../include/eg/eg_util.h"
 
 eg::Param<eg::util::Remove_p0_from_p1_Param_e> const eg::util::Remove_p0_from_p1_Param_d {
-	{ Remove_p0_from_p1_Param_e::Condition_All, false } };
+	{ eg::util::Remove_p0_from_p1_Param_e::Condition_All, false } };
 
 eg::Param<eg::util::Add_p0_to_p1_Param_e> const eg::util::Add_p0_to_p1_Param_d {
-	{ Add_p0_to_p1_Param_e::Condition_New, true } };
+	{ eg::util::Add_p0_to_p1_Param_e::Condition_New, true } };
 
 void eg::util::edianSwap(void *buffer, size_t buffer_len, size_t type_len) {
 	if (!type_len) type_len = buffer_len;

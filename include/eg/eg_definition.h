@@ -3,15 +3,13 @@
 #include <cstdint>
 #include <string>
 
-#include "thirdparty/murmur3_32.h"
 #include "eg_param.h"
 #include "eg_glbRtrn.h"
 
 namespace eg {
-#include "macro/rm_w4307_0.h"
 	namespace Key {
 		enum e {
-			egType = murmur3_32_value("egType", 6, 0),						//Specifies the egType
+			egType,						//Specifies the egType
 			//egDataManipulatorType = murmur3_32_value("egDataManipulatorType", 21, 0). Meh. User can take care of this one.
 		};
 	};
@@ -19,13 +17,12 @@ namespace eg {
 	namespace Value {
 		namespace egType {
 			enum e {
-				Object = murmur3_32_value("Object", 6, 0),						//Entity is an object (AKA inherited from eg::Object)
-				FullObject = murmur3_32_value("FullObject", 10, 0),				//Entity is a fullObject (AKA inherited from eg::FullObject)
-				DataManipulator = murmur3_32_value("DataManipulator", 15, 0),	//Entity is a dataManipulator (AKA inherited from eg::DataManipulator)
+				Object,				//Entity is an object (AKA inherited from eg::Object)
+				FullObject,			//Entity is a fullObject (AKA inherited from eg::FullObject)
+				DataManipulator,	//Entity is a dataManipulator (AKA inherited from eg::DataManipulator)
 			};
 		}
 	}
-#include "macro/rm_w4307_1.h"
 
 	enum class LoadData_Param_e : size_t {
 		Data_New = 0,					//Default = 0; Create a new set of data for the alloc
