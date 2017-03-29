@@ -175,6 +175,7 @@ template<typename param_t>
 eg::Param<param_t>::Param(std::initializer_list<std::pair<param_t, bool>> const list)
 {
 	param_enum = true;
+	add_param(list.size());
 	std::for_each(list.begin(), list.end(), [&](std::pair<param_t, bool> const &p0) { set_param(p0.first, p0.second); });
 }
 
