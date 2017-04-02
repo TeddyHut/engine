@@ -1,5 +1,6 @@
 #include "../include/eg/eg_engine.h"
 #include "../include/eg/macro/rm_w4307_0.h"
+#include "../include/eg/thirdparty/murmur3_32.h"
 
 #include <map>
 #include <string>
