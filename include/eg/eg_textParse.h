@@ -7,7 +7,7 @@
 
 namespace eg {
 	namespace util {
-		//Type tokenenum_t must have members "Quotation", "StrPlaceHolder", and "Invalid". TODO: I'm sure that there's some fancy standard library type functions to assert that condition.
+		//Type tokenenum_t must have members "Quotation", "StrPlaceholder", and "Invalid". TODO: I'm sure that there's some fancy standard library type functions to assert that condition.
 		template <typename tokenenum_t, std::map<tokenenum_t, std::string> const &tokenmap>
 		class TextParse {
 		public:
