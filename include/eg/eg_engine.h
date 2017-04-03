@@ -12,5 +12,6 @@
 #include "eg_object.h"
 #include "eg_fullObject.h"
 #include "eg_dataManipulator.h"
+#include "eg_textParse.h"
 
 //Need to use more std::find, std::find_if, std::compare, just more std

@@ -8,7 +8,7 @@
 namespace eg {
 	namespace util {
 		//Type tokenenum_t must have members "Quotation", "StrPlaceholder", and "Invalid". TODO: I'm sure that there's some fancy standard library type functions to assert that condition.
-		template <typename tokenenum_t, std::map<tokenenum_t, std::string> const &tokenmap>
+		template <typename tokenenum_t, std::map<tokenenum_t const, std::string const> const &tokenmap>
 		class TextParse {
 		public:
 			static tokenenum_t str_to_token(std::string const &str);
@@ -17,7 +17,7 @@ namespace eg {
 			std::vector<std::string> vec_str;
 		};
 		
-		template<typename tokenenum_t, std::map<tokenenum_t, std::string> const & tokenmap>
+		template<typename tokenenum_t, std::map<tokenenum_t const, std::string const> const & tokenmap>
 		tokenenum_t TextParse<tokenenum_t, tokenmap>::str_to_token(std::string const & str)
 		{
 			auto itr = std::find_if(tokenmap.begin(), tokenmap.end(), [&](std::pair<tokenenum_t const, std::string const> const &p0) {return(p0.second == str); });
@@ -26,7 +26,7 @@ namespace eg {
 			return((*itr).first);
 		}
 
-		template<typename tokenenum_t, std::map<tokenenum_t, std::string> const & tokenmap>
+		template<typename tokenenum_t, std::map<tokenenum_t const, std::string const> const & tokenmap>
 		void TextParse<tokenenum_t, tokenmap>::generate_tokens(std::string const & text)
 		{
 			vec_token.clear();
